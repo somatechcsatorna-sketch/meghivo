@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Luca &amp; Soma esküvője — 2027. 05. 14.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#74d2c1;
+    --pink:#f292db;
+    --yellow:#f6ee79;
+    --gold:#c9a25a;
+    --brass:#f3cc4f;
+    --periwinkle:#a1b3ed;
+    --purple:#bf88d8;
+    --seal:#8a5f92;
+    --ink:#2f2a35;
+    --ink-soft:#847c8c;
+    --cream:#faf6ee;
+    --cream-deep:#efe6d3;
+    --serif:"Cormorant Garamond", "Times New Roman", serif;
+    --sans:"Outfit", -apple-system, "Segoe UI", sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cream);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(191,136,216,.06), transparent 45%),
+      radial-gradient(circle at 88% 92%, rgba(161,179,237,.07), transparent 45%);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:400;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  h1,h2,h3{font-family:var(--serif); margin:0; font-weight:500;}
+  p{margin:0; line-height:1.7;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  /* divider ornament used consistently as the section-break device */
+  .ornament{
+    display:flex; align-items:center; justify-content:center; gap:.7rem;
+    margin:0 auto;
+  }
+  .ornament .line{width:34px; height:1px; background:var(--gold);}
+  .ornament .diamond{width:6px; height:6px; background:var(--gold); transform:rotate(45deg);}
+
+  /* ---------- HERO / ENVELOPE ---------- */
+  .hero{
+    position:relative;
+    min-height:100svh;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding: 2rem 1.5rem 3rem;
+    text-align:center;
+  }
+
+  .hero-stage{
+    position:relative;
+    z-index:2;
+    width:100%;
+    max-width:400px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:min(500px, 64vh);
+  }
+
+  /* --- envelope --- */
+  .envelope{
+    position:relative;
+    width:clamp(210px,64vw,260px);
+    height:clamp(150px,45vw,182px);
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    perspective:900px;
+    transition:opacity .5s ease .55s;
+  }
+  .envelope:focus-visible{outline:2px solid var(--seal); outline-offset:10px;}
+  .hero-stage.opened .envelope{opacity:0;}
+
+  .env-shadow{
+    position:absolute;
+    left:8%; right:8%; bottom:-14px;
+    height:18px;
+    background:radial-gradient(ellipse at center, rgba(47,42,53,.22), transparent 70%);
+    filter:blur(2px);
+  }
+  .env-body{
+    position:absolute;
+    inset:0;
+    background:var(--cream);
+    border:1px solid rgba(47,42,53,.16);
+    box-shadow:0 22px 34px -22px rgba(47,42,53,.4);
+  }
+  .env-flap{
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:60%;
+    background:var(--cream-deep);
+    clip-path:polygon(0 0, 100% 0, 50% 96%);
+    border-top:1px solid rgba(47,42,53,.16);
+    transform-origin:50% 0%;
+    transform-style:preserve-3d;
+    transition:transform .85s cubic-bezier(.65,0,.35,1);
+    z-index:3;
+  }
+  .hero-stage.opened .env-flap{transform:rotateX(-158deg);}
+
+  .wax-seal{
+    position:absolute;
+    top:38%; left:50%;
+    width:46px; height:46px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--seal) 70%, white 30%), var(--seal) 62%, color-mix(in srgb, var(--seal) 75%, black 25%) 100%);
+    box-shadow:0 6px 12px -4px rgba(47,42,53,.5);
+    display:flex; align-items:center; justify-content:center;
+    z-index:4;
+    transition:transform .5s cubic-bezier(.4,0,.2,1), opacity .45s ease .05s;
+  }
+  .wax-seal span{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:.85rem;
+    letter-spacing:.03em;
+    color:rgba(250,246,238,.92);
+  }
+  .hero-stage.unsealing .wax-seal{transform:translate(-50%,-50%) scale(.92) rotate(-6deg);}
+  .hero-stage.opened .wax-seal{transform:translate(-50%,-140%) scale(.4) rotate(-18deg); opacity:0;}
+
+  /* --- invitation card, rises after the envelope opens --- */
+  .invite-card{
+    position:relative;
+    width:100%;
+    max-width:320px;
+    margin:-1.4rem auto 0;
+    background:var(--cream);
+    border:1px solid rgba(47,42,53,.14);
+    box-shadow:0 40px 60px -34px rgba(47,42,53,.45);
+    padding:2.6rem 1.8rem 2.2rem;
+    opacity:0;
+    transform:translateY(26px) scale(.96);
+    transition:opacity .8s ease .3s, transform .9s cubic-bezier(.22,.7,.28,1) .3s;
+  }
+  .invite-card::before{
+    content:"";
+    position:absolute; inset:8px;
+    border:1px solid rgba(201,162,90,.55);
+    pointer-events:none;
+  }
+  .hero-stage.opened .invite-card{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+
+  .invite-eyebrow{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:1.05rem;
+    color:var(--ink-soft);
+    margin-bottom:1.1rem;
+  }
+  .invite-names{
+    font-size:clamp(1.7rem,7.5vw,2.1rem);
+    letter-spacing:.13em;
+    line-height:1.5;
+    text-transform:uppercase;
+    font-weight:500;
+  }
+  .invite-names .amp{
+    display:block;
+    text-transform:none;
+    font-style:italic;
+    font-size:1.1rem;
+    letter-spacing:0;
+    color:var(--seal);
+    margin:.1rem 0;
+  }
+  .invite-card .ornament{margin:1.3rem auto 1.1rem;}
+  .invite-date{
+    font-family:var(--serif);
+    font-size:1.2rem;
+    letter-spacing:.02em;
+  }
+  .invite-place{
+    color:var(--ink-soft);
+    font-size:.88rem;
+    letter-spacing:.03em;
+    margin-top:.3rem;
+  }
+
+  .tap-hint{
+    margin-top:2.4rem;
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:1.05rem;
+    color:var(--ink-soft);
+    transition:opacity .3s ease;
+  }
+  .hero-stage.opened .tap-hint{opacity:0; position:absolute;}
+
+  .scroll-cue{
+    position:relative;
+    z-index:2;
+    margin-top:2.2rem;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.6rem;
+    opacity:0;
+    transition:opacity .7s ease 1.05s;
+    color:var(--ink-soft);
+    font-size:.82rem;
+    letter-spacing:.04em;
+  }
+  .hero-stage.opened .scroll-cue{opacity:1;}
+  .scroll-cue span.arrow{
+    width:1px; height:22px;
+    background:var(--ink-soft);
+  }
+
+  /* ---------- SHARED SECTION STYLES ---------- */
+  section{
+    position:relative;
+    padding:4.4rem 1.6rem;
+    border-top:1px solid rgba(47,42,53,.1);
+  }
+  .section-inner{
+    position:relative;
+    max-width:440px;
+    margin:0 auto;
+  }
+  .section-title{
+    font-size:clamp(1.5rem,6.5vw,1.85rem);
+    text-align:center;
+    margin-bottom:1rem;
+  }
+  section > .section-inner > .ornament{margin-bottom:2.4rem;}
+
+  /* date & venue */
+  .date-display{
+    text-align:center;
+    margin-bottom:2.6rem;
+  }
+  .date-display .day{
+    font-family:var(--serif);
+    font-size:clamp(3.2rem,17vw,4.2rem);
+    line-height:1;
+    color:var(--seal);
+    font-weight:500;
+  }
+  .date-display .rest{
+    font-size:.92rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:.5rem;
+  }
+  .venue-card{text-align:center;}
+  .venue-name{
+    font-size:clamp(1.3rem,5.6vw,1.55rem);
+    margin-bottom:.4rem;
+  }
+  .venue-address{
+    color:var(--ink-soft);
+    font-size:.92rem;
+    margin-bottom:1.8rem;
+  }
+  .map-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.55rem;
+    text-decoration:none;
+    background:none;
+    border:1px solid var(--ink);
+    color:var(--ink);
+    padding:.75rem 1.6rem;
+    font-size:.85rem;
+    letter-spacing:.05em;
+    transition:background .3s ease, color .3s ease;
+  }
+  .map-btn:hover{background:var(--ink); color:var(--cream);}
+  .map-btn svg{width:14px; height:14px;}
+
+  .parking-note{
+    margin-top:2.6rem;
+    padding:1.3rem 0 0;
+    border-top:1px solid rgba(47,42,53,.14);
+    font-size:.92rem;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  .parking-note strong{
+    font-family:var(--serif); font-style:italic; font-weight:500;
+    display:block; margin-bottom:.4rem; color:var(--ink); font-size:1.05rem;
+  }
+
+  /* timeline */
+  .timeline{
+    list-style:none;
+    margin:0; padding:0;
+    position:relative;
+  }
+  .timeline::before{
+    content:"";
+    position:absolute;
+    left:54px;
+    top:6px; bottom:6px;
+    width:1px;
+    background:rgba(47,42,53,.18);
+  }
+  .timeline li{
+    position:relative;
+    display:flex;
+    gap:1.3rem;
+    padding:0 0 1.65rem 0;
+    align-items:flex-start;
+  }
+  .timeline li:last-child{padding-bottom:0;}
+  .t-time{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:1.02rem;
+    width:48px;
+    flex-shrink:0;
+    text-align:right;
+    padding-top:.02rem;
+    color:var(--seal);
+  }
+  .t-dot{
+    position:relative;
+    width:7px; height:7px;
+    margin-top:.5rem;
+    flex-shrink:0;
+    background:var(--gold);
+    border-radius:50%;
+    box-shadow:0 0 0 4px var(--cream);
+  }
+  .t-label{padding-top:.05rem; font-size:.94rem; color:var(--ink);}
+
+  /* dress code */
+  .dress-text{
+    text-align:center;
+    color:var(--ink-soft);
+    margin-bottom:2.2rem;
+    max-width:330px;
+    margin-left:auto; margin-right:auto;
+    font-size:.94rem;
+  }
+  .palette{
+    display:flex;
+    justify-content:center;
+    gap:.6rem;
+    flex-wrap:wrap;
+  }
+  .swatch{
+    width:38px; height:38px;
+    border-radius:3px;
+    border:1px solid rgba(47,42,53,.18);
+  }
+
+  footer{
+    padding:3.6rem 1.6rem 3rem;
+    text-align:center;
+    background:var(--ink);
+    color:var(--cream);
+    border-top:none;
+  }
+  footer .fnames{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(1.4rem,6.5vw,1.7rem);
+    margin-bottom:.7rem;
+  }
+  footer .fnote{
+    font-size:.82rem;
+    letter-spacing:.04em;
+    opacity:.7;
+  }
+
+  @media (min-width:600px){
+    .section-inner{max-width:520px;}
+  }
+
+  /* ---------- COUNTDOWN ---------- */
+  .countdown-grid{
+    display:flex;
+    justify-content:center;
+    gap:clamp(1.1rem,6vw,2.4rem);
+  }
+  .cd-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:50px;
+  }
+  .cd-num{
+    font-family:var(--serif);
+    font-size:clamp(2rem,9vw,2.6rem);
+    color:var(--seal);
+    line-height:1;
+    font-weight:500;
+    font-variant-numeric:tabular-nums;
+  }
+  .cd-label{
+    font-size:.7rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:.55rem;
+  }
+
+  /* ---------- RSVP FORM ---------- */
+  .rsvp-form{
+    display:flex;
+    flex-direction:column;
+    gap:1.6rem;
+    margin-top:2.2rem;
+  }
+  .field-q{
+    display:block;
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:1rem;
+    color:var(--ink);
+    margin-bottom:.7rem;
+  }
+  .line-input{
+    width:100%;
+    border:none;
+    border-bottom:1px solid rgba(47,42,53,.3);
+    background:transparent;
+    padding:.5rem .1rem;
+    font-family:var(--sans);
+    font-size:.95rem;
+    color:var(--ink);
+    transition:border-color .25s ease;
+  }
+  .line-input::placeholder{color:var(--ink-soft); opacity:.7;}
+  .line-input:focus{outline:none; border-bottom-color:var(--ink);}
+  textarea.line-input{resize:vertical; border:1px solid rgba(47,42,53,.25); padding:.7rem; min-height:4.5rem;}
+
+  .pill-group{display:flex; flex-wrap:wrap; gap:.6rem;}
+  .pill-group input[type="radio"]{
+    position:absolute;
+    opacity:0;
+    width:1px; height:1px;
+  }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    padding:.55rem 1.15rem;
+    border:1px solid rgba(47,42,53,.32);
+    font-size:.85rem;
+    letter-spacing:.02em;
+    cursor:pointer;
+    transition:background .25s ease, color .25s ease, border-color .25s ease;
+  }
+  .pill-group input[type="radio"]:checked + .pill{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:var(--cream);
+  }
+  .pill-group input[type="radio"]:focus-visible + .pill{
+    outline:2px solid var(--seal);
+    outline-offset:2px;
+  }
+
+  .conditional{display:none; margin-top:-.6rem;}
+  .conditional.show{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);}}
+
+  .rsvp-submit{
+    align-self:center;
+    margin-top:.6rem;
+    background:var(--ink);
+    color:var(--cream);
+    border:1px solid var(--ink);
+    padding:.85rem 2.4rem;
+    font-size:.88rem;
+    letter-spacing:.06em;
+    cursor:pointer;
+    transition:background .25s ease, color .25s ease;
+  }
+  .rsvp-submit:hover{background:transparent; color:var(--ink);}
+
+  .rsvp-result{
+    margin-top:2.4rem;
+    padding-top:2rem;
+    border-top:1px solid rgba(47,42,53,.14);
+    text-align:center;
+  }
+  .rsvp-result-note{
+    font-size:.88rem;
+    color:var(--ink-soft);
+    margin-bottom:1.1rem;
+  }
+  .copy-box{
+    width:100%;
+    min-height:7rem;
+    border:1px solid rgba(47,42,53,.25);
+    background:var(--cream-deep);
+    font-family:var(--sans);
+    font-size:.82rem;
+    color:var(--ink);
+    padding:.9rem;
+    resize:vertical;
+  }
+  .rsvp-actions{
+    display:flex;
+    justify-content:center;
+    gap:.8rem;
+    flex-wrap:wrap;
+    margin-top:1.1rem;
+  }
+  .rsvp-alt-btn{
+    display:inline-flex;
+    align-items:center;
+    text-decoration:none;
+    border:1px solid var(--ink);
+    color:var(--ink);
+    background:none;
+    padding:.65rem 1.3rem;
+    font-size:.82rem;
+    letter-spacing:.04em;
+    cursor:pointer;
+    font-family:inherit;
+    transition:background .25s ease, color .25s ease;
+  }
+  .rsvp-alt-btn:hover{background:var(--ink); color:var(--cream);}
+</style>
+</head>
+<body>
+
+<!-- ============ HERO: ENVELOPE ============ -->
+<div class="hero">
+  <div class="hero-stage" id="stage">
+
+    <button class="envelope" id="envelope" aria-label="Boríték felbontása, a meghívó megjelenítéséhez">
+      <span class="env-shadow" aria-hidden="true"></span>
+      <span class="env-body" aria-hidden="true"></span>
+      <span class="env-flap" aria-hidden="true"></span>
+      <span class="wax-seal" aria-hidden="true"><span>L·S</span></span>
+    </button>
+
+    <p class="tap-hint" id="tapHint">Érintsd meg a pecsétet</p>
+
+    <div class="invite-card" aria-live="polite">
+      <p class="invite-eyebrow">Szeretettel meghívunk</p>
+      <h1 class="invite-names">Luca<span class="amp">&amp;</span>Soma</h1>
+      <div class="ornament"><span class="line"></span><span class="diamond"></span><span class="line"></span></div>
+      <p class="invite-date">2027. május 14., péntek</p>
+      <p class="invite-place">Gálffy Birtok · Bogád</p>
+    </div>
+
+    <div class="scroll-cue">
+      <span>Görgess lejjebb a részletekért</span>
+      <span class="arrow"></span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ VISSZASZÁMLÁLÁS ============ -->
+<section class="countdown-section">
+  <div class="section-inner">
+    <p class="invite-eyebrow" style="margin-bottom:1.8rem;">A nagy napig</p>
+    <div class="countdown-grid" id="countdown">
+      <div class="cd-item"><span class="cd-num" id="cdDays">–</span><span class="cd-label">Nap</span></div>
+      <div class="cd-item"><span class="cd-num" id="cdHours">–</span><span class="cd-label">Óra</span></div>
+      <div class="cd-item"><span class="cd-num" id="cdMinutes">–</span><span class="cd-label">Perc</span></div>
+      <div class="cd-item"><span class="cd-num" id="cdSeconds">–</span><span class="cd-label">Mp</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DÁTUM & HELYSZÍN ============ -->
+<section class="venue">
+  <div class="section-inner">
+    <div class="date-display">
+      <div class="day">14</div>
+      <div class="rest">2027. Május · Péntek</div>
+    </div>
+
+    <div class="venue-card">
+      <h2 class="venue-name">Gálffy Birtok</h2>
+      <p class="venue-address">7742 Bogád, Kápolnás domb</p>
+      <a class="map-btn" href="https://www.google.com/maps/place//data=!4m2!3m1!1s0x4742b714497f5d01:0xd8f05bf05bd0ee88?sa=X&amp;ved=1t:8290&amp;ictx=111" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Útvonaltervezés
+      </a>
+    </div>
+
+    <div class="parking-note">
+      <strong>Parkolás</strong>
+      A birtok saját parkolójában mindenkinek jut hely. Ha úgy alakul, hogy inkább nem autóval mentek haza, nyugodtan hagyjátok itt a kocsit — másnap délelőtt bármikor visszajöhettek érte.
+    </div>
+  </div>
+</section>
+
+<!-- ============ IDŐREND ============ -->
+<section class="timeline-section">
+  <div class="section-inner">
+    <h2 class="section-title">A nap menete</h2>
+    <span class="ornament"><span class="line"></span><span class="diamond"></span><span class="line"></span></span>
+    <ul class="timeline" id="timeline" style="margin-top:2.4rem;">
+      <!-- filled by JS -->
+    </ul>
+  </div>
+</section>
+
+<!-- ============ DRESS CODE ============ -->
+<section class="dress-section">
+  <div class="section-inner">
+    <h2 class="section-title">Öltözködés</h2>
+    <span class="ornament"><span class="line"></span><span class="diamond"></span><span class="line"></span></span>
+    <p class="dress-text" style="margin-top:2rem;">Kérjük, öltözzetek ezen színek harmóniájában, hogy együtt teremtsük meg a nap egységes, letisztult hangulatát.</p>
+    <div class="palette" id="palette"></div>
+  </div>
+</section>
+
+<!-- ============ VISSZAJELZÉS / RSVP ============ -->
+<section class="rsvp-section" id="rsvp">
+  <div class="section-inner">
+    <h2 class="section-title">Visszajelzés</h2>
+    <span class="ornament"><span class="line"></span><span class="diamond"></span><span class="line"></span></span>
+    <p class="dress-text" style="margin-top:2rem;">Kérjük, jelezzétek vissza részvételeteket, hogy mindent a lehető legjobban megszervezhessünk.</p>
+
+    <form class="rsvp-form" id="rsvpForm" novalidate>
+
+      <div class="field">
+        <label class="field-q">Részt tudtok venni az esküvőnkön?</label>
+        <div class="pill-group">
+          <input type="radio" id="attendYes" name="attend" value="Igen, ott leszünk" required>
+          <label for="attendYes" class="pill">Igen, ott leszünk</label>
+          <input type="radio" id="attendNo" name="attend" value="Sajnos nem tudunk jönni">
+          <label for="attendNo" class="pill">Sajnos nem tudunk jönni</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-q" for="guestCount">Hány fővel érkeztek?</label>
+        <input class="line-input" type="number" id="guestCount" min="1" placeholder="pl. 2" required>
+      </div>
+
+      <div class="field">
+        <label class="field-q" for="guestNames">Mi a teljes nevetek?</label>
+        <input class="line-input" type="text" id="guestNames" placeholder="pl. Kiss Anna és Nagy Péter" required>
+      </div>
+
+      <div class="field">
+        <label class="field-q">Hoztok gyereket is magatokkal?</label>
+        <div class="pill-group">
+          <input type="radio" id="childYes" name="child" value="Igen">
+          <label for="childYes" class="pill">Igen</label>
+          <input type="radio" id="childNo" name="child" value="Nem" checked>
+          <label for="childNo" class="pill">Nem</label>
+        </div>
+      </div>
+
+      <div class="field conditional" id="childAgeField">
+        <label class="field-q" for="childAge">Hány éves(ek) lesznek 2026.08.01-re?</label>
+        <input class="line-input" type="text" id="childAge" placeholder="pl. 4 és 7 éves">
+      </div>
+
+      <div class="field">
+        <label class="field-q">Van ételallergiátok vagy speciális étrendetek?</label>
+        <div class="pill-group">
+          <input type="radio" id="allergyYes" name="allergy" value="Igen">
+          <label for="allergyYes" class="pill">Igen</label>
+          <input type="radio" id="allergyNo" name="allergy" value="Nem" checked>
+          <label for="allergyNo" class="pill">Nem</label>
+        </div>
+      </div>
+
+      <div class="field conditional" id="allergyDetailField">
+        <label class="field-q" for="allergyDetail">Ha igen, mire?</label>
+        <input class="line-input" type="text" id="allergyDetail" placeholder="pl. laktózérzékenység">
+      </div>
+
+      <div class="field">
+        <label class="field-q" for="songRequest">Van kedvenc dalotok, amit szeretnétek hallani a buliban?</label>
+        <input class="line-input" type="text" id="songRequest" placeholder="Előadó – dalcím">
+      </div>
+
+      <div class="field">
+        <label class="field-q" for="message">Szeretnétek üzenetet küldeni nekünk az esküvő előtt?</label>
+        <textarea class="line-input" id="message" rows="3" placeholder="Ide írhatjátok..."></textarea>
+      </div>
+
+      <button type="submit" class="rsvp-submit">Válasz elküldése</button>
+    </form>
+
+    <div class="rsvp-result" id="rsvpResult" hidden>
+      <p class="rsvp-result-note" id="rsvpStatus">Küldés...</p>
+      <div id="rsvpFallback" hidden>
+        <textarea class="copy-box" id="copyBox" readonly></textarea>
+        <div class="rsvp-actions">
+          <button type="button" class="rsvp-alt-btn" id="copyBtn">Szöveg másolása</button>
+          <a class="rsvp-alt-btn" id="whatsappLink" href="#" target="_blank" rel="noopener">Küldés WhatsAppon</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fnames">Luca &amp; Soma</div>
+  <div class="fnote">MÁR CSAK RÁTOK VÁRUNK</div>
+</footer>
+
+<script>
+  // --- envelope interaction ---
+  const stage = document.getElementById('stage');
+  const envelope = document.getElementById('envelope');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let opened = false;
+
+  function openEnvelope(){
+    if(opened) return;
+    opened = true;
+    if(reduced){
+      stage.classList.add('opened');
+      return;
+    }
+    stage.classList.add('unsealing');
+    setTimeout(()=>{ stage.classList.add('opened'); }, 420);
+  }
+  envelope.addEventListener('click', openEnvelope);
+
+  // --- timeline data ---
+  const events = [
+    ['17:00','Érkezés és vendégvárás'],
+    ['18:00','Ceremónia kezdete'],
+    ['19:00','Koccintás, italozás'],
+    ['20:00','Vacsora'],
+    ['22:00','A pár tánca'],
+    ['23:00','Torta'],
+    ['23:30','Party'],
+    ['03:00','Esküvő vége a gyengéknek'],
+    ['05:00','Esküvő vége a keménymagnak']
+  ];
+  const tl = document.getElementById('timeline');
+  events.forEach(([time,label])=>{
+    const li = document.createElement('li');
+    li.innerHTML = '<span class="t-time">' + time + '</span><span class="t-dot"></span><span class="t-label">' + label + '</span>';
+    tl.appendChild(li);
+  });
+
+  // --- palette swatches ---
+  const colors = ['#74d2c1','#f292db','#f6ee79','#f3cc4f','#a1b3ed','#bf88d8'];
+  const pal = document.getElementById('palette');
+  colors.forEach(c=>{
+    const s = document.createElement('span');
+    s.className = 'swatch';
+    s.style.background = c;
+    pal.appendChild(s);
+  });
+  // --- countdown ---
+  const weddingDate = new Date(2027, 4, 14, 0, 0, 0);
+  let cdTimer;
+  function updateCountdown(){
+    const now = new Date();
+    let diff = weddingDate - now;
+    if(diff <= 0){
+      document.getElementById('countdown').innerHTML =
+        '<p style="font-family:var(--serif); font-style:italic; font-size:1.3rem;">Már együtt ünnepelünk!</p>';
+      if(cdTimer) clearInterval(cdTimer);
+      return;
+    }
+    const d = Math.floor(diff / 86400000); diff -= d * 86400000;
+    const h = Math.floor(diff / 3600000); diff -= h * 3600000;
+    const m = Math.floor(diff / 60000); diff -= m * 60000;
+    const s = Math.floor(diff / 1000);
+    document.getElementById('cdDays').textContent = d;
+    document.getElementById('cdHours').textContent = String(h).padStart(2,'0');
+    document.getElementById('cdMinutes').textContent = String(m).padStart(2,'0');
+    document.getElementById('cdSeconds').textContent = String(s).padStart(2,'0');
+  }
+  updateCountdown();
+  cdTimer = setInterval(updateCountdown, 1000);
+
+  // --- RSVP: conditional fields ---
+  const childAgeField = document.getElementById('childAgeField');
+  function toggleChildAge(){
+    childAgeField.classList.toggle('show', document.getElementById('childYes').checked);
+  }
+  document.getElementById('childYes').addEventListener('change', toggleChildAge);
+  document.getElementById('childNo').addEventListener('change', toggleChildAge);
+  toggleChildAge();
+
+  const allergyDetailField = document.getElementById('allergyDetailField');
+  function toggleAllergyDetail(){
+    allergyDetailField.classList.toggle('show', document.getElementById('allergyYes').checked);
+  }
+  document.getElementById('allergyYes').addEventListener('change', toggleAllergyDetail);
+  document.getElementById('allergyNo').addEventListener('change', toggleAllergyDetail);
+  toggleAllergyDetail();
+
+  // --- RSVP: submit ---
+  // A weboldal önmagában (szerver nélkül) nem tud csendben e-mailt küldeni – ehhez
+  // a Formspree ingyenes szolgáltatását használja a háttérben.
+  // TEENDŐ, hogy működjön:
+  //   1) Regisztrálj a https://formspree.io oldalon az ujlakisoma@hotmail.com címmel.
+  //   2) Hozz létre egy új űrlapot (form), és erősítsd meg a címet a hozzád érkező e-mailben.
+  //   3) Másold ki a kapott form-azonosítót (pl. https://formspree.io/f/xxxxaaaa),
+  //      és írd be ide, a "XXXXXXXX" helyére.
+  const FORM_ENDPOINT = 'https://formspree.io/f/mnpqegnw';
+  const RSVP_WHATSAPP = '36301234567';
+
+  const rsvpForm = document.getElementById('rsvpForm');
+  const submitBtn = rsvpForm.querySelector('.rsvp-submit');
+
+  rsvpForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!rsvpForm.reportValidity()) return;
+
+    const attend = rsvpForm.querySelector('input[name="attend"]:checked')?.value || '';
+    const guestCount = document.getElementById('guestCount').value;
+    const guestNames = document.getElementById('guestNames').value;
+    const child = rsvpForm.querySelector('input[name="child"]:checked')?.value || '';
+    const childAge = document.getElementById('childAge').value;
+    const allergy = rsvpForm.querySelector('input[name="allergy"]:checked')?.value || '';
+    const allergyDetail = document.getElementById('allergyDetail').value;
+    const song = document.getElementById('songRequest').value;
+    const message = document.getElementById('message').value;
+
+    const lines = [];
+    lines.push('Részvétel: ' + attend);
+    lines.push('Létszám: ' + guestCount + ' fő');
+    lines.push('Név(ek): ' + guestNames);
+    lines.push('Gyerek érkezik: ' + child + (child === 'Igen' && childAge ? ' (' + childAge + ')' : ''));
+    lines.push('Ételallergia / speciális étrend: ' + allergy + (allergy === 'Igen' && allergyDetail ? ' – ' + allergyDetail : ''));
+    if(song) lines.push('Kért dal: ' + song);
+    if(message) lines.push('Üzenet: ' + message);
+    const fullText = lines.join('\n');
+
+    document.getElementById('copyBox').value = fullText;
+    document.getElementById('whatsappLink').href =
+      'https://wa.me/' + RSVP_WHATSAPP + '?text=' + encodeURIComponent('RSVP – ' + guestNames + '\n\n' + fullText);
+
+    const rsvpResult = document.getElementById('rsvpResult');
+    const rsvpStatus = document.getElementById('rsvpStatus');
+    const rsvpFallback = document.getElementById('rsvpFallback');
+    rsvpResult.hidden = false;
+    rsvpFallback.hidden = true;
+    rsvpStatus.textContent = 'Küldés...';
+    submitBtn.disabled = true;
+    rsvpResult.scrollIntoView({behavior:'smooth', block:'center'});
+
+    const fd = new FormData();
+    fd.append('_subject', 'RSVP – ' + guestNames);
+    fd.append('Részvétel', attend);
+    fd.append('Létszám', guestCount + ' fő');
+    fd.append('Név(ek)', guestNames);
+    fd.append('Gyerek érkezik', child + (child === 'Igen' && childAge ? ' (' + childAge + ')' : ''));
+    fd.append('Ételallergia / speciális étrend', allergy + (allergy === 'Igen' && allergyDetail ? ' – ' + allergyDetail : ''));
+    if(song) fd.append('Kért dal', song);
+    if(message) fd.append('Üzenet', message);
+
+    fetch(FORM_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: fd
+    }).then(function(res){
+      if(res.ok){
+        rsvpStatus.textContent = 'Köszönjük! A válaszotok megérkezett hozzánk.';
+        rsvpForm.reset();
+        toggleChildAge();
+        toggleAllergyDetail();
+      } else {
+        throw new Error('send failed');
+      }
+    }).catch(function(){
+      rsvpStatus.textContent = 'A küldés most nem sikerült — kérjük, küldjétek el nekünk a választ az alábbi módok egyikén:';
+      rsvpFallback.hidden = false;
+      submitBtn.disabled = false;
+    });
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    const box = document.getElementById('copyBox');
+    box.select();
+    navigator.clipboard?.writeText(box.value);
+    const btn = this;
+    btn.textContent = 'Kimásolva ✓';
+    setTimeout(()=>{ btn.textContent = 'Szöveg másolása'; }, 2000);
+  });
+</script>
+</body>
+</html>
