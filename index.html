@@ -694,6 +694,15 @@
         </div>
       </div>
 
+      <div style="display:none" aria-hidden="true">
+  <label for="_gotcha">Ezt a mezőt hagyd üresen</label>
+  <input type="text"
+         name="_gotcha"
+         id="_gotcha"
+         tabindex="-1"
+         autocomplete="off">
+      </div>
+
       <div class="field">
         <label class="field-q" for="guestCount">Hány fővel érkeztek?</label>
         <input class="line-input" type="number" id="guestCount" min="1" placeholder="pl. 2" required>
@@ -906,6 +915,7 @@
 
     const fd = new FormData();
     fd.append('_subject', 'RSVP – ' + guestNames);
+    fd.append('_gotcha', document.getElementById('_gotcha').value);
     fd.append('Részvétel', attend);
     fd.append('Létszám', guestCount + ' fő');
     fd.append('Név(ek)', guestNames);
