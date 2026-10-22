@@ -1849,7 +1849,9 @@
       // If the browser accepted our previous programmatic scroll, keep the internal
       // position in sync. On iOS Safari we still advance cinematicY ourselves so
       // coalesced/stale scrollY reads cannot freeze the tour.
-      if(Math.abs(actualY-cinematicY)<80) cinematicY=actualY;
+      // Do not feed Safari's rounded scrollTop back into the virtual position on
+      // every frame. Only resync after a meaningful external displacement.
+      if(Math.abs(actualY-cinematicY)>120) cinematicY=actualY;
 
       while(currentIndex<route.length-1 && cinematicY>=route[currentIndex].y-12) currentIndex++;
       const target=route[Math.min(currentIndex,route.length-1)];
@@ -1872,10 +1874,13 @@
       cinematicY=clamp(cinematicY+currentSpeed*dt);
       programmatic=true;
 
-      // Directly drive Safari's real scroll container. Numeric scrollTo is kept
-      // as a secondary path for desktop/Android, but no smooth behavior is active.
-      scroller.scrollTop = cinematicY;
-      window.scrollTo(0, cinematicY);
+      // V12 iOS: use ONE scroll writer only. Writing both scroller.scrollTop and
+      // window.scrollTo in the same frame can make Safari alternate between two
+      // rounded positions, which becomes visible as vibration at low speeds.
+      // Keep the fractional cinematic position internally and only send one
+      // rounded physical pixel position to Safari.
+      const physicalY = Math.round(cinematicY * window.devicePixelRatio) / window.devicePixelRatio;
+      scroller.scrollTop = physicalY;
 
       programmatic=false;
 
