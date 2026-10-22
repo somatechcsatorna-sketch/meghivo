@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Luca &amp; Soma esküvője — 2027. 08. 08.</title>
+<script>document.documentElement.classList.add('locked','pre');window.addEventListener('error',function(){document.documentElement.classList.remove('locked','pre');});</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
@@ -53,110 +54,191 @@
   .ornament .line{width:34px; height:1px; background:var(--gold);}
   .ornament .diamond{width:6px; height:6px; background:var(--gold); transform:rotate(45deg);}
 
-  /* ---------- HERO / ENVELOPE ---------- */
+  /* ---------- HERO / 3D ENVELOPE ---------- */
+  html.locked, html.locked body{overflow:hidden; height:100%; overscroll-behavior:none;}
+  html.pre section, html.pre footer{opacity:0; visibility:hidden;}
+  section, footer{transition:opacity 1.2s ease .1s;}
+
   .hero{
     position:relative;
-    min-height:100svh;
+    isolation:isolate;
     min-height:100vh;
+    min-height:100svh;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    padding: 2rem 1.5rem 3rem;
+    padding:1.5rem 1.25rem 2.5rem;
     text-align:center;
   }
 
+  /* soft pastel glow behind the envelope, drawn from the page palette */
+  .aurora{position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
+  .aurora i{position:absolute; width:62vmax; height:62vmax; border-radius:50%; will-change:transform;}
+  .aurora i:nth-child(1){left:-24vmax; top:-22vmax; background:radial-gradient(circle, rgba(116,210,193,.42), transparent 62%); animation:drift1 24s ease-in-out infinite alternate;}
+  .aurora i:nth-child(2){right:-28vmax; top:4vh; background:radial-gradient(circle, rgba(242,146,219,.32), transparent 62%); animation:drift2 28s ease-in-out infinite alternate;}
+  .aurora i:nth-child(3){left:-12vmax; bottom:-34vmax; background:radial-gradient(circle, rgba(161,179,237,.46), transparent 62%); animation:drift1 30s ease-in-out infinite alternate-reverse;}
+  .aurora i:nth-child(4){right:-6vmax; bottom:-30vmax; width:46vmax; height:46vmax; background:radial-gradient(circle, rgba(246,238,121,.30), transparent 62%); animation:drift2 26s ease-in-out infinite alternate-reverse;}
+  @keyframes drift1{to{transform:translate(9vmax,7vmax) scale(1.14);}}
+  @keyframes drift2{to{transform:translate(-8vmax,6vmax) scale(1.1);}}
+
   .hero-stage{
+    --w:clamp(280px,84vw,400px);
+    --h:calc(var(--w) * .7);
     position:relative;
     z-index:2;
     width:100%;
-    max-width:400px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    min-height:min(500px, 64vh);
+    max-width:460px;
+    height:min(560px,62vh);
+    height:min(560px,62svh);
   }
 
-  /* --- envelope --- */
-  .envelope{
+  .env-scene{
+    position:absolute; inset:0;
+    display:grid; place-items:center;
+    perspective:1300px;
+    perspective-origin:50% 42%;
+  }
+
+  .env-ground{
+    position:absolute;
+    left:50%;
+    top:calc(50% + var(--h) / 2 + 30px);
+    width:calc(var(--w) * .84);
+    height:26px;
+    margin-left:calc(var(--w) * -.42);
+    background:radial-gradient(ellipse at center, rgba(47,42,53,.36), transparent 70%);
+    filter:blur(6px);
+    animation:groundPulse 7s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes groundPulse{
+    0%,100%{transform:scale(1.02); opacity:.9;}
+    50%{transform:scale(.88); opacity:.6;}
+  }
+
+  .env-float{
+    transform-style:preserve-3d;
+    animation:envFloat 7s ease-in-out infinite;
+  }
+  @keyframes envFloat{
+    0%,100%{transform:translateY(0) rotateX(5deg) rotateY(-8deg) rotateZ(-.6deg);}
+    50%{transform:translateY(-11px) rotateX(-3deg) rotateY(8deg) rotateZ(.6deg);}
+  }
+  .env-tilt{
+    transform-style:preserve-3d;
+    transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+    transition:transform .4s cubic-bezier(.2,.7,.3,1);
+  }
+  .env{
     position:relative;
-    width:clamp(210px,64vw,260px);
-    height:clamp(150px,45vw,182px);
-    background:none;
-    border:none;
-    padding:0;
+    width:var(--w);
+    height:var(--h);
+    transform-style:preserve-3d;
     cursor:pointer;
     -webkit-tap-highlight-color:transparent;
-    perspective:900px;
-    transition:opacity .5s ease .55s;
   }
-  .envelope:focus-visible{outline:2px solid var(--seal); outline-offset:10px;}
-  .hero-stage.opened .envelope{opacity:0;}
+  .hero.opened .env{cursor:default;}
 
-  .env-shadow{
-    position:absolute;
-    left:8%; right:8%; bottom:-14px;
-    height:18px;
-    background:radial-gradient(ellipse at center, rgba(47,42,53,.22), transparent 70%);
-    filter:blur(2px);
+  .env-part{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+    transform:translateZ(var(--z,0px));
+    pointer-events:none;
   }
-  .env-body{
+
+  /* the flap: two faces (paper outside, patterned liner inside) on one hinge */
+  .flap{
     position:absolute;
-    inset:0;
-    background:var(--cream);
-    border:1px solid rgba(47,42,53,.16);
-    box-shadow:0 22px 34px -22px rgba(47,42,53,.4);
-  }
-  .env-flap{
-    position:absolute;
-    top:0; left:0;
-    width:100%; height:60%;
-    background:var(--cream-deep);
-    clip-path:polygon(0 0, 100% 0, 50% 96%);
-    border-top:1px solid rgba(47,42,53,.16);
-    transform-origin:50% 0%;
+    left:0; top:0;
+    width:100%; height:55%;
+    inset:auto;
+    left:0; top:0;
+    transform-origin:50% 0;
     transform-style:preserve-3d;
-    transition:transform .85s cubic-bezier(.65,0,.35,1);
-    z-index:3;
+    transform:translateZ(6px);
+    pointer-events:none;
   }
-  .hero-stage.opened .env-flap{transform:rotateX(-158deg);}
+  .flap .face{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+  }
+  .flap .face.in{transform:rotateY(180deg);}
 
-  .wax-seal{
+  /* --- wax seal --- */
+  .seal-wrap{
     position:absolute;
-    top:38%; left:50%;
-    width:46px; height:46px;
-    transform:translate(-50%,-50%);
+    left:50%; top:55%;
+    width:calc(var(--w) * .2);
+    min-width:58px;
+    aspect-ratio:1;
+    transform:translate(-50%,-50%) translateZ(16px);
+  }
+  .seal-wrap::before{
+    content:"";
+    position:absolute; inset:-6%;
     border-radius:50%;
-    background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--seal) 70%, white 30%), var(--seal) 62%, color-mix(in srgb, var(--seal) 75%, black 25%) 100%);
-    box-shadow:0 6px 12px -4px rgba(47,42,53,.5);
-    display:flex; align-items:center; justify-content:center;
-    z-index:4;
-    transition:transform .5s cubic-bezier(.4,0,.2,1), opacity .45s ease .05s;
+    border:1.5px solid rgba(138,95,146,.6);
+    animation:sealPulse 2.6s ease-out infinite;
+    pointer-events:none;
   }
-  .wax-seal span{
-    font-family:var(--serif);
-    font-style:italic;
-    font-size:.85rem;
-    letter-spacing:.03em;
-    color:rgba(250,246,238,.92);
+  @keyframes sealPulse{
+    0%{transform:scale(.85); opacity:.9;}
+    100%{transform:scale(1.9); opacity:0;}
   }
-  .hero-stage.unsealing .wax-seal{transform:translate(-50%,-50%) scale(.92) rotate(-6deg);}
-  .hero-stage.opened .wax-seal{transform:translate(-50%,-140%) scale(.4) rotate(-18deg); opacity:0;}
-
-  /* --- invitation card, rises after the envelope opens --- */
-  .invite-card{
+  .seal-btn{
+    all:unset;
+    box-sizing:border-box;
     position:relative;
-    width:100%;
-    max-width:320px;
-    margin:-1.4rem auto 0;
-    background:var(--cream);
+    display:block;
+    width:100%; height:100%;
+    border-radius:50%;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    filter:drop-shadow(0 6px 5px rgba(40,18,52,.34)) drop-shadow(0 1px 1px rgba(40,18,52,.45));
+    transition:transform .3s cubic-bezier(.3,.7,.3,1);
+    pointer-events:auto;
+  }
+  .seal-btn:hover{transform:scale(1.07) rotate(-3deg);}
+  .seal-btn:focus-visible{outline:2px solid var(--seal); outline-offset:8px;}
+  .seal-art{display:block; width:100%; height:100%; overflow:visible;}
+  .seal-half{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:none;
+    overflow:visible;
+    will-change:transform, opacity;
+    pointer-events:none;
+  }
+  .seal-half.l{clip-path:polygon(-20% -20%, 53% -20%, 47% 14%, 55% 28%, 46% 42%, 54% 57%, 47% 71%, 55% 85%, 50% 120%, -20% 120%);}
+  .seal-half.r{clip-path:polygon(53% -20%, 120% -20%, 120% 120%, 50% 120%, 55% 85%, 47% 71%, 54% 57%, 46% 42%, 55% 28%, 47% 14%);}
+  .seal-wrap.broken .seal-btn{visibility:hidden;}
+  .seal-wrap.broken .seal-half{display:block;}
+  .seal-wrap.broken::before{display:none;}
+
+  /* particles (wax crumbs, sparkles) */
+  .fx{position:absolute; left:50%; top:50%; width:0; height:0; pointer-events:none; z-index:5;}
+  .fx i{position:absolute; left:0; top:0; display:block; border-radius:50%; will-change:transform, opacity;}
+
+  /* --- invitation card: sits inside the envelope, then slides out --- */
+  .invite-card{
+    position:absolute;
+    left:50%; top:50%;
+    width:min(320px, calc(100vw - 3rem));
+    margin:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 40%),
+      var(--cream);
     border:1px solid rgba(47,42,53,.14);
-    box-shadow:0 40px 60px -34px rgba(47,42,53,.45);
     padding:2.6rem 1.8rem 2.2rem;
-    opacity:0;
-    transform:translateY(26px) scale(.96);
-    transition:opacity .8s ease .3s, transform .9s cubic-bezier(.22,.7,.28,1) .3s;
+    transform:translate(-50%,-50%) translateZ(2px) scale(var(--cs,.7));
+    backface-visibility:hidden;
+    box-shadow:0 0 0 rgba(47,42,53,0);
+    transition:box-shadow .9s ease;
   }
   .invite-card::before{
     content:"";
@@ -164,10 +246,12 @@
     border:1px solid rgba(201,162,90,.55);
     pointer-events:none;
   }
-  .hero-stage.opened .invite-card{
-    opacity:1;
-    transform:translateY(0) scale(1);
-  }
+  .hero.lifted .invite-card,
+  .hero.opened .invite-card{box-shadow:0 40px 60px -34px rgba(47,42,53,.45), 0 2px 10px rgba(47,42,53,.06);}
+  .hero.opened .invite-card{transform:translate(-50%,-50%) translateZ(0) scale(1);}
+  .hero.opened .env-part,
+  .hero.opened .seal-wrap,
+  .hero.opened .env-ground{display:none;}
 
   .invite-eyebrow{
     font-family:var(--serif);
@@ -206,33 +290,42 @@
   }
 
   .tap-hint{
-    margin-top:2.4rem;
+    position:relative;
+    z-index:2;
+    margin-top:.4rem;
     font-family:var(--serif);
     font-style:italic;
     font-size:1.05rem;
     color:var(--ink-soft);
-    transition:opacity .3s ease;
+    transition:opacity .4s ease;
   }
-  .hero-stage.opened .tap-hint{opacity:0; position:absolute;}
+  .hero.opening .tap-hint{opacity:0;}
+  .hero.opened .tap-hint{display:none;}
 
   .scroll-cue{
     position:relative;
     z-index:2;
-    margin-top:2.2rem;
-    display:flex;
+    margin-top:1.4rem;
+    display:none;
     flex-direction:column;
     align-items:center;
     gap:.6rem;
-    opacity:0;
-    transition:opacity .7s ease 1.05s;
     color:var(--ink-soft);
     font-size:.82rem;
     letter-spacing:.04em;
   }
-  .hero-stage.opened .scroll-cue{opacity:1;}
+  .hero.opened .scroll-cue{display:flex; animation:cueIn .9s ease .2s both;}
+  @keyframes cueIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
   .scroll-cue span.arrow{
     width:1px; height:22px;
     background:var(--ink-soft);
+    transform-origin:top;
+    animation:arrowDrip 1.8s ease-in-out infinite;
+  }
+  @keyframes arrowDrip{0%{transform:scaleY(0);} 55%{transform:scaleY(1);} 100%{transform:scaleY(1); opacity:0;}}
+
+  @media (prefers-reduced-motion:reduce){
+    .env-float,.env-ground,.aurora i,.seal-wrap::before{animation:none;}
   }
 
   /* ---------- SHARED SECTION STYLES ---------- */
@@ -574,31 +667,193 @@
 </head>
 <body>
 
-<!-- ============ HERO: ENVELOPE ============ -->
-<div class="hero">
+<!-- ============ HERO: 3D ENVELOPE ============ -->
+
+<!-- shared SVG resources (gradients, paper grain, wax lighting, seal artwork) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gLiner" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9ee1d3"/>
+      <stop offset=".5" stop-color="#b3c2f2"/>
+      <stop offset="1" stop-color="#f4b2e6"/>
+    </linearGradient>
+    <pattern id="pLattice" width="4.2" height="4.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <path d="M0 0H4.2M0 0V4.2" fill="none" stroke="#fff" stroke-opacity=".42" stroke-width=".13"/>
+    </pattern>
+    <linearGradient id="gInner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a2750" stop-opacity=".34"/>
+      <stop offset=".65" stop-color="#3a2750" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="gPaperL" x1="0" y1="0" x2="1" y2=".35">
+      <stop offset="0" stop-color="#ece2cd"/>
+      <stop offset="1" stop-color="#f8f2e6"/>
+    </linearGradient>
+    <linearGradient id="gPaperR" x1="1" y1="0" x2="0" y2=".35">
+      <stop offset="0" stop-color="#e8ddc6"/>
+      <stop offset="1" stop-color="#f6efe2"/>
+    </linearGradient>
+    <linearGradient id="gPaperB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#faf5ea"/>
+      <stop offset="1" stop-color="#f1e9d8"/>
+    </linearGradient>
+    <linearGradient id="gFlapOut" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8f3e8"/>
+      <stop offset="1" stop-color="#eadfc9"/>
+    </linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="2.1" numOctaves="2" seed="4"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 .32  0 0 0 0 .26  0 0 0 0 .2  1.3 0 0 0 -.52"/>
+    </filter>
+    <filter id="blurSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.1"/></filter>
+    <clipPath id="cFront"><polygon points="0,0 50,38.5 100,0 100,70 0,70"/></clipPath>
+    <clipPath id="cFlap"><polygon points="0,0 100,0 50,38.5"/></clipPath>
+
+    <!-- wax -->
+    <radialGradient id="waxGrad" cx=".36" cy=".3" r=".85">
+      <stop offset="0" stop-color="#bf93c6"/>
+      <stop offset=".5" stop-color="#8a5f92"/>
+      <stop offset="1" stop-color="#5a3768"/>
+    </radialGradient>
+    <filter id="waxEdge" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".034" numOctaves="2" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="10" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feColorMatrix in="d" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="da"/>
+      <feGaussianBlur in="da" stdDeviation="2.6" result="b"/>
+      <feDiffuseLighting in="b" surfaceScale="5" diffuseConstant="1.22" lighting-color="#fff" result="diff">
+        <feDistantLight azimuth="235" elevation="55"/>
+      </feDiffuseLighting>
+      <feComposite in="d" in2="diff" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="shaded"/>
+      <feComposite in="shaded" in2="d" operator="in" result="shadedIn"/>
+      <feSpecularLighting in="b" surfaceScale="5" specularConstant="1" specularExponent="24" lighting-color="#fff0ff" result="spec">
+        <feDistantLight azimuth="235" elevation="48"/>
+      </feSpecularLighting>
+      <feComposite in="spec" in2="d" operator="in" result="specIn"/>
+      <feMerge><feMergeNode in="shadedIn"/><feMergeNode in="specIn"/></feMerge>
+    </filter>
+    <filter id="waxStamp" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation=".75" result="b"/>
+      <feOffset in="b" dx=".8" dy="1.1" result="bo"/>
+      <feFlood flood-color="#2a1034" flood-opacity=".55"/>
+      <feComposite in2="bo" operator="in" result="drop"/>
+      <feDiffuseLighting in="b" surfaceScale="3.4" diffuseConstant="1.15" lighting-color="#fff" result="diff">
+        <feDistantLight azimuth="235" elevation="55"/>
+      </feDiffuseLighting>
+      <feComposite in="SourceGraphic" in2="diff" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="shaded"/>
+      <feComposite in="shaded" in2="SourceAlpha" operator="in" result="shadedIn"/>
+      <feSpecularLighting in="b" surfaceScale="3.4" specularConstant="1" specularExponent="26" lighting-color="#fff2ff" result="spec">
+        <feDistantLight azimuth="235" elevation="48"/>
+      </feSpecularLighting>
+      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn"/>
+      <feMerge><feMergeNode in="drop"/><feMergeNode in="shadedIn"/><feMergeNode in="specIn"/></feMerge>
+    </filter>
+
+    <symbol id="sealArt" viewBox="0 0 120 120">
+      <g filter="url(#waxEdge)">
+        <circle cx="60" cy="60" r="51" fill="url(#waxGrad)"/>
+      </g>
+      <!-- pressed groove -->
+      <circle cx="60" cy="60" r="43.5" fill="none" stroke="#2a1034" stroke-opacity=".25" stroke-width="1.3" transform="translate(-.5 -.8)"/>
+      <circle cx="60" cy="60" r="43.5" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1" transform="translate(.6 .9)"/>
+      <!-- raised stamp -->
+      <g filter="url(#waxStamp)" fill="#a477ad" stroke="none">
+        <circle cx="60" cy="60" r="38.5" fill="none" stroke="#a477ad" stroke-width="2.4"/>
+        <circle cx="60" cy="60" r="33" fill="none" stroke="#a477ad" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 4.55"/>
+        <text x="39" y="73" text-anchor="middle" font-family="'Cormorant Garamond','Times New Roman',serif" font-style="italic" font-weight="500" font-size="40">L</text>
+        <text x="82" y="73" text-anchor="middle" font-family="'Cormorant Garamond','Times New Roman',serif" font-style="italic" font-weight="500" font-size="40">S</text>
+        <path d="M60 46.5 L64 52 L60 57.5 L56 52 Z"/>
+        <path d="M50.5 64.5 H69.5" stroke="#a477ad" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <path d="M60 71 L62.6 74 L60 77 L57.4 74 Z"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="hero" id="hero">
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
   <div class="hero-stage" id="stage">
+    <div class="env-scene" id="scene">
+      <div class="env-ground" id="ground" aria-hidden="true"></div>
 
-    <button class="envelope" id="envelope" aria-label="Boríték felbontása, a meghívó megjelenítéséhez">
-      <span class="env-shadow" aria-hidden="true"></span>
-      <span class="env-body" aria-hidden="true"></span>
-      <span class="env-flap" aria-hidden="true"></span>
-      <span class="wax-seal" aria-hidden="true"><span>L·S</span></span>
-    </button>
+      <div class="env-float" id="float">
+        <div class="env-tilt" id="tilt">
+          <div class="env" id="env">
 
-    <p class="tap-hint" id="tapHint">Érintsd meg a pecsétet</p>
+            <!-- back panel: patterned liner -->
+            <svg class="env-part" data-z="0" style="--z:0px" viewBox="0 0 100 70" preserveAspectRatio="none" aria-hidden="true">
+              <rect width="100" height="70" fill="url(#gLiner)"/>
+              <rect width="100" height="70" fill="url(#pLattice)"/>
+              <rect width="100" height="70" fill="url(#gInner)"/>
+              <rect x=".2" y=".2" width="99.6" height="69.6" fill="none" stroke="rgba(47,42,53,.18)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+            </svg>
 
-    <div class="invite-card" aria-live="polite">
-      <p class="invite-eyebrow">Szeretettel meghívunk</p>
-      <h1 class="invite-names">Luca<span class="amp">&amp;</span>Soma</h1>
-      <div class="ornament"><span class="line"></span><span class="diamond"></span><span class="line"></span></div>
-      <p class="invite-date">2027. augusztus 08. | vasárnap</p>
-      <p class="invite-place">Gálffy Birtok · Bogád</p>
+            <!-- the invitation card, waiting inside -->
+            <div class="invite-card" id="card" aria-live="polite">
+              <p class="invite-eyebrow">Szeretettel meghívunk</p>
+              <h1 class="invite-names">Luca<span class="amp">&amp;</span>Soma</h1>
+              <div class="ornament"><span class="line"></span><span class="diamond"></span><span class="line"></span></div>
+              <p class="invite-date">2027. augusztus 08., vasárnap</p>
+              <p class="invite-place">Gálffy Birtok · Bogád</p>
+            </div>
+
+            <!-- front pocket: three folded panels -->
+            <svg class="env-part" data-z="4" style="--z:4px" viewBox="0 0 100 70" preserveAspectRatio="none" aria-hidden="true">
+              <polygon points="0,0 50,38.5 0,70" fill="url(#gPaperL)"/>
+              <polygon points="100,0 50,38.5 100,70" fill="url(#gPaperR)"/>
+              <path d="M-4 74 L50 38.5 L104 74" fill="none" stroke="rgba(40,22,52,.42)" stroke-width="3" filter="url(#blurSoft)" clip-path="url(#cFront)"/>
+              <polygon points="0,70 50,38.5 100,70" fill="url(#gPaperB)"/>
+              <g clip-path="url(#cFront)"><rect width="100" height="70" filter="url(#grain)" opacity=".55"/></g>
+              <path d="M0 70 L50 38.5 L100 70" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              <path d="M0 70 L50 38.5 L100 70" fill="none" stroke="rgba(47,42,53,.16)" stroke-width="1" vector-effect="non-scaling-stroke" transform="translate(0 .35)"/>
+              <path d="M0 0 L50 38.5 L100 0" fill="none" stroke="rgba(47,42,53,.12)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              <rect x=".2" y=".2" width="99.6" height="69.6" fill="none" stroke="rgba(47,42,53,.18)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              <text x="50" y="60.4" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="400" font-size="2.3" letter-spacing=".75" fill="#847c8c">LUCA &amp; SOMA</text>
+              <text x="50" y="64.3" text-anchor="middle" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="2.7" fill="#a98a52">2027 · 08 · 08</text>
+            </svg>
+
+            <!-- soft shadow the closed flap casts on the pocket -->
+            <svg class="env-part" id="flapShade" data-z="5" style="--z:5px" viewBox="0 0 100 70" preserveAspectRatio="none" aria-hidden="true">
+              <polygon points="1.5,1.2 98.5,1.2 50,41.2" fill="rgba(30,14,40,.4)" filter="url(#blurSoft)"/>
+            </svg>
+
+            <!-- flap -->
+            <div class="flap" id="flap" aria-hidden="true">
+              <svg class="face out" viewBox="0 0 100 38.5" preserveAspectRatio="none">
+                <polygon points="0,0 100,0 50,38.5" fill="url(#gFlapOut)"/>
+                <g clip-path="url(#cFlap)"><rect width="100" height="38.5" filter="url(#grain)" opacity=".55"/></g>
+                <path d="M0 0 L50 38.5 L100 0" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                <path d="M0 0 L50 38.5 L100 0" fill="none" stroke="rgba(47,42,53,.2)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round" transform="translate(0 .4)"/>
+              </svg>
+              <svg class="face in" viewBox="0 0 100 38.5" preserveAspectRatio="none">
+                <polygon points="0,0 100,0 50,38.5" fill="url(#gLiner)"/>
+                <polygon points="0,0 100,0 50,38.5" fill="url(#pLattice)"/>
+                <polygon points="0,0 100,0 50,38.5" fill="rgba(255,255,255,.12)"/>
+                <path d="M0 0 L50 38.5 L100 0" fill="none" stroke="rgba(47,42,53,.2)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <!-- the wax seal, floating just above the flap tip -->
+            <div class="seal-wrap" id="sealWrap">
+              <button class="seal-btn" id="sealBtn" type="button" aria-label="Pecsét feltörése és a boríték felbontása">
+                <svg class="seal-art" viewBox="0 0 120 120" aria-hidden="true"><use href="#sealArt" width="120" height="120"/></svg>
+              </button>
+              <svg class="seal-half l" id="halfL" viewBox="0 0 120 120" aria-hidden="true"><use href="#sealArt" width="120" height="120"/></svg>
+              <svg class="seal-half r" id="halfR" viewBox="0 0 120 120" aria-hidden="true"><use href="#sealArt" width="120" height="120"/></svg>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="fx" id="fx" aria-hidden="true"></div>
     </div>
+  </div>
 
-    <div class="scroll-cue">
-      <span>Görgess lejjebb a részletekért</span>
-      <span class="arrow"></span>
-    </div>
+  <p class="tap-hint" id="tapHint">Érintsd meg a pecsétet</p>
+
+  <div class="scroll-cue">
+    <span>Görgess lejjebb a részletekért</span>
+    <span class="arrow"></span>
   </div>
 </div>
 
@@ -635,7 +890,7 @@
   <div class="section-inner">
     <div class="date-display">
       <div class="day">08</div>
-      <div class="rest">2027. Augusztus | Vasárnap</div>
+      <div class="rest">2027. Augusztus · Vasárnap</div>
     </div>
 
     <div class="venue-card">
@@ -694,15 +949,6 @@
         </div>
       </div>
 
-      <div style="display:none" aria-hidden="true">
-  <label for="_gotcha">Ezt a mezőt hagyd üresen</label>
-  <input type="text"
-         name="_gotcha"
-         id="_gotcha"
-         tabindex="-1"
-         autocomplete="off">
-      </div>
-
       <div class="field">
         <label class="field-q" for="guestCount">Hány fővel érkeztek?</label>
         <input class="line-input" type="number" id="guestCount" min="1" placeholder="pl. 2" required>
@@ -724,7 +970,7 @@
       </div>
 
       <div class="field conditional" id="childAgeField">
-        <label class="field-q" for="childAge">Hány éves(ek) lesznek 2027.08.08-ra?</label>
+        <label class="field-q" for="childAge">Hány éves(ek) lesznek 2026.08.01-re?</label>
         <input class="line-input" type="text" id="childAge" placeholder="pl. 4 és 7 éves">
       </div>
 
@@ -775,23 +1021,177 @@
 </footer>
 
 <script>
-  // --- envelope interaction ---
+  // --- 3D envelope ---
+  const hero = document.getElementById('hero');
   const stage = document.getElementById('stage');
-  const envelope = document.getElementById('envelope');
+  const env = document.getElementById('env');
+  const tilt = document.getElementById('tilt');
+  const floater = document.getElementById('float');
+  const card = document.getElementById('card');
+  const flap = document.getElementById('flap');
+  const flapShade = document.getElementById('flapShade');
+  const sealWrap = document.getElementById('sealWrap');
+  const sealBtn = document.getElementById('sealBtn');
+  const halfL = document.getElementById('halfL');
+  const halfR = document.getElementById('halfR');
+  const ground = document.getElementById('ground');
+  const fx = document.getElementById('fx');
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let opened = false;
+  let tiltK = 1;
 
-  function openEnvelope(){
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const run = (el, kf, opt) => el.animate(kf, Object.assign({fill:'forwards'}, opt)).finished;
+
+  // the card is scaled down so it fits fully inside the envelope
+  function fitCard(){
+    const H = env.offsetHeight, ch = card.offsetHeight;
+    if(!ch) return;
+    card.style.setProperty('--cs', Math.min(.9, (H * .86) / ch).toFixed(3));
+  }
+  fitCard();
+  window.addEventListener('load', fitCard);
+  window.addEventListener('resize', fitCard);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
+
+  // pointer parallax: the envelope turns to face the cursor
+  window.addEventListener('pointermove', e => {
+    if(e.pointerType === 'touch') return;
+    const x = e.clientX / window.innerWidth - .5;
+    const y = e.clientY / window.innerHeight - .5;
+    tilt.style.setProperty('--ry', (x * 18 * tiltK).toFixed(2) + 'deg');
+    tilt.style.setProperty('--rx', (-y * 14 * tiltK).toFixed(2) + 'deg');
+  }, {passive:true});
+
+  // little particles: wax crumbs / sparkles
+  function burst(x, y, n, opts){
+    for(let i = 0; i < n; i++){
+      const p = document.createElement('i');
+      const size = opts.min + Math.random() * (opts.max - opts.min);
+      const col = opts.colors[(Math.random() * opts.colors.length) | 0];
+      p.style.width = p.style.height = size + 'px';
+      p.style.margin = (-size / 2) + 'px 0 0 ' + (-size / 2) + 'px';
+      p.style.background = opts.glow
+        ? 'radial-gradient(circle, ' + col + ', transparent 70%)'
+        : 'radial-gradient(circle at 35% 30%, ' + col + ', #5a3768)';
+      fx.appendChild(p);
+      const a = Math.random() * Math.PI * 2;
+      const d = opts.dist * (.45 + Math.random() * .75);
+      const dx = Math.cos(a) * d, dy = Math.sin(a) * d * (opts.flat || 1);
+      const g = opts.gravity || 0;
+      const dur = opts.dur * (.75 + Math.random() * .5);
+      p.animate([
+        {transform:`translate(${x}px,${y}px) scale(.4)`, opacity:1},
+        {transform:`translate(${x + dx * .7}px,${y + dy * .7}px) scale(1)`, opacity:1, offset:.45},
+        {transform:`translate(${x + dx}px,${y + dy + g}px) scale(.2)`, opacity:0}
+      ], {duration:dur, easing:'cubic-bezier(.2,.7,.4,1)', fill:'forwards'}).finished.then(() => p.remove());
+    }
+  }
+
+  function showFinal(){
+    hero.classList.add('opened');
+    document.documentElement.classList.remove('locked', 'pre');
+  }
+
+  async function openEnvelope(){
     if(opened) return;
     opened = true;
+
     if(reduced){
-      stage.classList.add('opened');
+      fitCard();
+      showFinal();
       return;
     }
-    stage.classList.add('unsealing');
-    setTimeout(()=>{ stage.classList.add('opened'); }, 420);
+
+    fitCard();
+    const H = env.offsetHeight;
+    const cs = parseFloat(card.style.getPropertyValue('--cs')) || .7;
+    const rise = H * .62;
+    if(navigator.vibrate) try{ navigator.vibrate(14); }catch(_){}
+    hero.classList.add('opening');
+
+    // calm the idle motion down to a neutral pose
+    const startPose = getComputedStyle(floater).transform;
+    floater.style.animation = 'none';
+    if(startPose && startPose !== 'none'){
+      floater.animate([{transform:startPose},{transform:'none'}], {duration:900, easing:'cubic-bezier(.2,.7,.3,1)', fill:'forwards'});
+    }
+    tiltK = 0;
+    tilt.style.setProperty('--rx', '0deg');
+    tilt.style.setProperty('--ry', '0deg');
+
+    // 1) the seal is pressed...
+    await run(sealBtn, [
+      {transform:'scale(1) rotate(0deg)'},
+      {transform:'scale(.84) rotate(-4deg)'}
+    ], {duration:170, easing:'ease-in'});
+
+    // 2) ...and cracks in two
+    sealWrap.classList.add('broken');
+    const sealY = H * .05;
+    burst(0, sealY, 11, {colors:['#b58cbd','#8a5f92','#6e4679'], min:3, max:7, dist:H * .34, flat:.8, gravity:H * .28, dur:950});
+    const fall = (el, dx, dy, rot) => run(el, [
+      {transform:'translate(0,0) rotate(0deg)', opacity:1},
+      {transform:`translate(${dx * .35}px, ${-H * .05}px) rotate(${rot * .3}deg)`, opacity:1, offset:.22},
+      {transform:`translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity:0}
+    ], {duration:1100, easing:'cubic-bezier(.4,0,.9,.6)'});
+    fall(halfL, -H * .16, H * .75, -48);
+    fall(halfR, H * .15, H * .9, 38);
+
+    // 3) the flap swings open on its hinge
+    flapShade.animate([{opacity:1},{opacity:0}], {duration:420, delay:80, fill:'forwards'});
+    const flapDone = run(flap, [
+      {transform:'translateZ(6px) rotateX(0deg)'},
+      {transform:'translateZ(6px) rotateX(-90deg)', offset:.46},
+      {transform:'translateZ(.5px) rotateX(-186deg)', offset:.88},
+      {transform:'translateZ(.5px) rotateX(-180deg)'}
+    ], {duration:1100, delay:90, easing:'cubic-bezier(.45,.05,.3,1)'});
+
+    await wait(860);
+
+    // 4) the card slides up out of the pocket
+    hero.classList.add('lifted');
+    const base = 'translate(-50%,-50%)';
+    await run(card, [
+      {transform:`${base} translateZ(2px) scale(${cs})`},
+      {transform:`${base} translateY(${-rise}px) translateZ(2px) rotateZ(-2.2deg) scale(${cs})`}
+    ], {duration:820, easing:'cubic-bezier(.3,.75,.25,1)'});
+
+    // 5) it lifts toward the viewer...
+    await run(card, [
+      {transform:`${base} translateY(${-rise}px) translateZ(2px) rotateZ(-2.2deg) scale(${cs})`},
+      {transform:`${base} translateY(${-rise * 1.04}px) translateZ(90px) rotateZ(0deg) scale(${cs * 1.1})`}
+    ], {duration:420, easing:'cubic-bezier(.3,.6,.3,1)'});
+
+    // 6) ...while the envelope falls away and the card settles in the middle
+    const sink = H * .55;
+    const parts = [
+      {el:flap, t:'translateY(' + sink + 'px) translateZ(-79.5px) rotateX(-180deg)', fade:flap.querySelectorAll('.face')},
+      ...[...env.querySelectorAll('.env-part')].filter(el => el !== flapShade).map(el => ({
+        el, t:'translateY(' + sink + 'px) translateZ(' + (parseFloat(el.dataset.z || 0) - 80) + 'px)', fade:[el]
+      }))
+    ];
+    parts.forEach(p => {
+      const from = p.el === flap ? 'translateZ(.5px) rotateX(-180deg)' : 'translateZ(' + (p.el.dataset.z || 0) + 'px)';
+      p.el.animate([{transform:from},{transform:p.t}], {duration:800, easing:'cubic-bezier(.55,0,.8,.5)', fill:'forwards'});
+      p.fade.forEach(f => f.animate([{opacity:1},{opacity:0}], {duration:700, easing:'ease-in', fill:'forwards'}));
+    });
+    ground.animate([{opacity:1},{opacity:0}], {duration:600, fill:'forwards'});
+
+    await run(card, [
+      {transform:`${base} translateY(${-rise * 1.04}px) translateZ(90px) scale(${cs * 1.1})`},
+      {transform:`${base} translateY(0px) translateZ(0px) scale(1)`}
+    ], {duration:900, easing:'cubic-bezier(.25,.8,.25,1)'});
+
+    // 7) done: sparkle, give the page back
+    burst(0, 0, 22, {colors:['#74d2c1','#f292db','#f6ee79','#a1b3ed','#bf88d8'], min:10, max:22, dist:Math.min(190, window.innerWidth * .46), flat:.9, glow:true, dur:1500});
+    tiltK = .35;
+    showFinal();
   }
-  envelope.addEventListener('click', openEnvelope);
+
+  env.addEventListener('click', openEnvelope);
+  window.scrollTo(0, 0);
+
 
   // --- timeline data ---
   const events = [
@@ -802,8 +1202,7 @@
     ['21:00','A pár tánca'],
     ['22:00','Torta'],
     ['22:30','Party'],
-    ['03:00','Esküvő vége a gyengéknek'],
-    ['04:00','Esküvő vége a keménymagnak']
+    ['03:00','Esküvő vége'],
   ];
   const tl = document.getElementById('timeline');
   events.forEach(([time,label])=>{
@@ -915,7 +1314,6 @@
 
     const fd = new FormData();
     fd.append('_subject', 'RSVP – ' + guestNames);
-    fd.append('_gotcha', document.getElementById('_gotcha').value);
     fd.append('Részvétel', attend);
     fd.append('Létszám', guestCount + ' fő');
     fd.append('Név(ek)', guestNames);
