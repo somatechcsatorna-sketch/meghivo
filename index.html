@@ -389,10 +389,6 @@
     background:radial-gradient(circle at 50% 45%, rgba(255,250,225,.95), rgba(255,226,170,.55) 38%, rgba(255,210,240,0) 72%);}
   .ring{position:absolute; left:0; top:0; border-radius:50%; border:2px solid rgba(243,204,79,.9); box-shadow:0 0 14px rgba(255,214,120,.8), inset 0 0 12px rgba(255,214,120,.5); pointer-events:none;}
 
-  @media (prefers-reduced-motion:reduce){
-    .env-float,.env-ground,.aurora i,.seal-wrap::before,.bokeh b,.env-sheen,.seal-glow,.seal-shine::after{animation:none;}
-    .tap-hint{opacity:1 !important;}
-  }
 
 
   /* ---------- VENUE PHOTO ---------- */
@@ -1097,7 +1093,7 @@
   const halfR = document.getElementById('halfR');
   const ground = document.getElementById('ground');
   const fx = document.getElementById('fx');
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches || typeof env.animate !== 'function';
+  const reduced = typeof env.animate !== 'function';
   let opened = false, introDone = false, pendingOpen = false, tiltK = 1, touching = false, sparkTimer = null;
 
   const wait = ms => new Promise(r => setTimeout(r, ms));
