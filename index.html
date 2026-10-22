@@ -1021,8 +1021,8 @@
               <path d="M0 86 L50 47.3 L100 86" fill="none" stroke="rgba(47,42,53,.16)" stroke-width="1" vector-effect="non-scaling-stroke" transform="translate(0 .35)"/>
               <path d="M0 0 L50 47.3 L100 0" fill="none" stroke="rgba(47,42,53,.12)" stroke-width="1" vector-effect="non-scaling-stroke"/>
               <rect x=".2" y=".2" width="99.6" height="85.6" fill="none" stroke="rgba(47,42,53,.18)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-              <text x="50" y="76.4" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="400" font-size="2.3" letter-spacing=".75" fill="#847c8c">LUCA &amp; SOMA</text>
-              <text x="50" y="80.6" text-anchor="middle" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="2.7" fill="#a98a52">2027 · 08 · 08</text>
+              <text x="50" y="76.4" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="400" font-size="4.3" letter-spacing=".75" fill="#847c8c">LUCA &amp; SOMA</text>
+              <text x="50" y="80.6" text-anchor="middle" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="5.7" fill="#a98a52">2027 · 08 · 08</text>
             </svg>
 
             <!-- moving light sweep across the paper -->
@@ -1836,7 +1836,7 @@
 
     let currentIndex=0;
     let last=performance.now();
-    let currentSpeed=230;
+    let currentSpeed=214;
     let lastLabel='';
     let cinematicY=scroller.scrollTop || window.pageYOffset || 0;
 
@@ -1858,7 +1858,8 @@
 
       if(target){
         // Smoothly blend speed instead of visibly changing gears.
-        currentSpeed += (target.speed-currentSpeed)*Math.min(1,dt*1.7);
+        const cinematicTargetSpeed = target.speed * 0.93;
+      currentSpeed += (cinematicTargetSpeed-currentSpeed)*Math.min(1,dt*1.7);
         if(target.label && target.label!==lastLabel){
           lastLabel=target.label;
           note.classList.remove('show');
