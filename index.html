@@ -1226,6 +1226,11 @@
         <textarea class="line-input" id="message" rows="3" placeholder="Ide írhatjátok..."></textarea>
       </div>
 
+      <div class="field conditional" id="declineNamesWrap">
+        <label class="field-q" for="declineNames">Hogy hívnak benneteket?</label>
+        <input class="line-input" type="text" id="declineNames" placeholder="Név / nevek">
+      </div>
+
       <button type="submit" class="rsvp-submit">Válasz elküldése</button>
     </form>
 
@@ -1647,13 +1652,52 @@
   const rsvpForm = document.getElementById('rsvpForm');
   const submitBtn = rsvpForm.querySelector('.rsvp-submit');
 
+  const attendYes = document.getElementById('attendYes');
+  const attendNo = document.getElementById('attendNo');
+  const declineNamesWrap = document.getElementById('declineNamesWrap');
+  const declineNames = document.getElementById('declineNames');
+  const normalRsvpFields = Array.from(rsvpForm.querySelectorAll(':scope > .field'))
+    .filter(function(field){
+      return !field.contains(attendYes) && field !== declineNamesWrap;
+    });
+
+  function toggleAttendanceFields(){
+    const declining = attendNo.checked;
+
+    normalRsvpFields.forEach(function(field){
+      if(declining){
+        field.dataset.prevDisplay = field.style.display || '';
+        field.style.display = 'none';
+        field.querySelectorAll('input, textarea, select').forEach(function(input){
+          input.dataset.prevDisabled = input.disabled ? '1' : '0';
+          input.disabled = true;
+        });
+      } else {
+        field.style.display = field.dataset.prevDisplay || '';
+        field.querySelectorAll('input, textarea, select').forEach(function(input){
+          if(input.dataset.prevDisabled !== '1') input.disabled = false;
+        });
+      }
+    });
+
+    declineNamesWrap.classList.toggle('show', declining);
+    declineNamesWrap.style.display = declining ? 'block' : 'none';
+    declineNames.required = declining;
+  }
+
+  attendYes.addEventListener('change', toggleAttendanceFields);
+  attendNo.addEventListener('change', toggleAttendanceFields);
+  toggleAttendanceFields();
+
   rsvpForm.addEventListener('submit', function(e){
     e.preventDefault();
     if(!rsvpForm.reportValidity()) return;
 
     const attend = rsvpForm.querySelector('input[name="attend"]:checked')?.value || '';
-    const guestCount = document.getElementById('guestCount').value;
-    const guestNames = document.getElementById('guestNames').value;
+    const declining = attendNo.checked;
+    const declineNameValue = declineNames.value.trim();
+    const guestCount = declining ? '' : document.getElementById('guestCount').value;
+    const guestNames = declining ? declineNameValue : document.getElementById('guestNames').value;
     const child = rsvpForm.querySelector('input[name="child"]:checked')?.value || '';
     const childAge = document.getElementById('childAge').value;
     const allergy = rsvpForm.querySelector('input[name="allergy"]:checked')?.value || '';
@@ -1663,12 +1707,14 @@
 
     const lines = [];
     lines.push('Részvétel: ' + attend);
-    lines.push('Létszám: ' + guestCount + ' fő');
     lines.push('Név(ek): ' + guestNames);
-    lines.push('Gyerek érkezik: ' + child + (child === 'Igen' && childAge ? ' (' + childAge + ')' : ''));
-    lines.push('Ételallergia / speciális étrend: ' + allergy + (allergy === 'Igen' && allergyDetail ? ' – ' + allergyDetail : ''));
-    if(song) lines.push('Kért dal: ' + song);
-    if(message) lines.push('Üzenet: ' + message);
+    if(!declining){
+      lines.push('Létszám: ' + guestCount + ' fő');
+      lines.push('Gyerek érkezik: ' + child + (child === 'Igen' && childAge ? ' (' + childAge + ')' : ''));
+      lines.push('Ételallergia / speciális étrend: ' + allergy + (allergy === 'Igen' && allergyDetail ? ' – ' + allergyDetail : ''));
+      if(song) lines.push('Kért dal: ' + song);
+      if(message) lines.push('Üzenet: ' + message);
+    }
     const fullText = lines.join('\n');
 
     document.getElementById('copyBox').value = fullText;
@@ -1687,12 +1733,14 @@
     const fd = new FormData();
     fd.append('_subject', 'RSVP – ' + guestNames);
     fd.append('Részvétel', attend);
-    fd.append('Létszám', guestCount + ' fő');
     fd.append('Név(ek)', guestNames);
-    fd.append('Gyerek érkezik', child + (child === 'Igen' && childAge ? ' (' + childAge + ')' : ''));
-    fd.append('Ételallergia / speciális étrend', allergy + (allergy === 'Igen' && allergyDetail ? ' – ' + allergyDetail : ''));
-    if(song) fd.append('Kért dal', song);
-    if(message) fd.append('Üzenet', message);
+    if(!declining){
+      fd.append('Létszám', guestCount + ' fő');
+      fd.append('Gyerek érkezik', child + (child === 'Igen' && childAge ? ' (' + childAge + ')' : ''));
+      fd.append('Ételallergia / speciális étrend', allergy + (allergy === 'Igen' && allergyDetail ? ' – ' + allergyDetail : ''));
+      if(song) fd.append('Kért dal', song);
+      if(message) fd.append('Üzenet', message);
+    }
 
     fetch(FORM_ENDPOINT, {
       method: 'POST',
@@ -1704,6 +1752,7 @@
         rsvpForm.reset();
         toggleChildAge();
         toggleAllergyDetail();
+        toggleAttendanceFields();
       } else {
         throw new Error('send failed');
       }
