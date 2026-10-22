@@ -937,6 +937,20 @@
     font-size:clamp(16px,4.8vw,22px)!important;letter-spacing:.15em!important;font-weight:600!important;
   }
 
+
+/* V16 — sikeres RSVP után az aktuális oldalbetöltés alatt nem küldhető újra */
+#rsvpForm.rsvp-locked input,
+#rsvpForm.rsvp-locked textarea,
+#rsvpForm.rsvp-locked select{
+  opacity:.62;
+  cursor:not-allowed;
+}
+#rsvpForm.rsvp-locked .rsvp-submit{
+  opacity:.78;
+  cursor:default;
+  transform:none!important;
+}
+
 </style>
 </head>
 <body>
@@ -1689,8 +1703,27 @@
   attendNo.addEventListener('change', toggleAttendanceFields);
   toggleAttendanceFields();
 
+  let rsvpSubmittedThisPage = false;
+
+  function lockRsvpAfterSuccess(){
+    rsvpSubmittedThisPage = true;
+
+    rsvpForm.querySelectorAll('input, textarea, select, button').forEach(function(el){
+      el.disabled = true;
+    });
+
+    const submitBtn = rsvpForm.querySelector('.rsvp-submit');
+    if(submitBtn){
+      submitBtn.textContent = 'Válasz elküldve ✓';
+      submitBtn.setAttribute('aria-disabled', 'true');
+    }
+
+    rsvpForm.classList.add('rsvp-locked');
+  }
+
   rsvpForm.addEventListener('submit', function(e){
     e.preventDefault();
+    if(rsvpSubmittedThisPage) return;
     if(!rsvpForm.reportValidity()) return;
 
     const attend = rsvpForm.querySelector('input[name="attend"]:checked')?.value || '';
@@ -1749,10 +1782,7 @@
     }).then(function(res){
       if(res.ok){
         rsvpStatus.textContent = 'Köszönjük! A válaszotok megérkezett hozzánk.';
-        rsvpForm.reset();
-        toggleChildAge();
-        toggleAllergyDetail();
-        toggleAttendanceFields();
+        lockRsvpAfterSuccess();
       } else {
         throw new Error('send failed');
       }
