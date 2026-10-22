@@ -1566,14 +1566,15 @@
 
   // --- timeline data ---
   const events = [
-    ['16:00','Érkezés és vendégvárás'],
-    ['16:45','Ceremónia kezdete'],
-    ['17:15','Koccintás, italozás'],
+    ['16:00','Vendégvárás'],
+    ['16:45','Ceremónia'],
+    ['17:15','Gratuláció'],
+	['17:45','Fotózkodás'],
     ['19:00','Vacsora'],
-    ['21:00','A pár tánca'],
+    ['21:00','Nyitótánc'],
     ['22:00','Torta'],
     ['22:30','Party'],
-    ['03:00','Esküvő vége'],
+    ['03:00','Party vége'],
   ];
   const tl = document.getElementById('timeline');
   events.forEach(([time,label])=>{
@@ -1730,6 +1731,15 @@
     if(cinematicTourStarted || reduced) return;
     cinematicTourStarted = true;
 
+    // iOS Safari fix: the page normally uses CSS smooth scrolling. Repeated
+    // requestAnimationFrame scrolls can stall when that remains enabled.
+    document.documentElement.classList.remove('locked','pre');
+    const oldHtmlScrollBehavior = document.documentElement.style.scrollBehavior;
+    const oldBodyScrollBehavior = document.body.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.body.style.scrollBehavior = 'auto';
+    const scroller = document.scrollingElement || document.documentElement;
+
     const guide=document.createElement('div');
     guide.className='cinematic-guide';
     guide.setAttribute('aria-hidden','true');
@@ -1756,6 +1766,8 @@
       guide.classList.remove('show'); guide.classList.add('leave');
       note.classList.add('hide');
       cleanup();
+      document.documentElement.style.scrollBehavior = oldHtmlScrollBehavior;
+      document.body.style.scrollBehavior = oldBodyScrollBehavior;
       setTimeout(()=>{guide.remove();note.remove();},1000);
     };
     const onKey=e=>{
@@ -1795,10 +1807,10 @@
     const gallery=document.querySelector('.gallery');
     if(gallery){
       const gy=Math.max(0,Math.min(maxScroll(),
-        window.scrollY+gallery.getBoundingClientRect().bottom-window.innerHeight*.82));
+        window.scrollY+gallery.getBoundingClientRect().bottom-window.innerHeight*.132));
       points.push({y:gy,speed:128,label:'Néhány közös pillanat… ♡'});
     }
-    add(venuePhoto,-.18,112,'Itt ünneplünk majd… ✦');
+    add(venuePhoto,-.18,132,'Itt ünneplünk majd… ✦');
     add(document.querySelector('.venue-card'),.24,98,'Gálffy Birtok · Bogád');
     add(document.querySelector('.parking-note'),.42,100,'Gálffy Birtok · Bogád');
 
@@ -1826,13 +1838,13 @@
     let last=performance.now();
     let currentSpeed=230;
     let lastLabel='';
-    let cinematicY=window.scrollY || window.pageYOffset || 0;
+    let cinematicY=scroller.scrollTop || window.pageYOffset || 0;
 
     const frame=now=>{
       if(cancelled) return;
       const dt=Math.min(.05,(now-last)/1000);
       last=now;
-      const actualY=window.scrollY || window.pageYOffset || 0;
+      const actualY=scroller.scrollTop || window.pageYOffset || 0;
 
       // If the browser accepted our previous programmatic scroll, keep the internal
       // position in sync. On iOS Safari we still advance cinematicY ourselves so
@@ -1859,11 +1871,12 @@
       // Start moving at once. No sleep/pause anywhere in the cinematic route.
       cinematicY=clamp(cinematicY+currentSpeed*dt);
       programmatic=true;
-      // Both forms are intentional: scrollTo is standard, scrollTop is an iOS
-      // fallback for cases where Safari ignores/coalesces rAF scrollTo calls.
-      window.scrollTo({left:0,top:cinematicY,behavior:'auto'});
-      document.documentElement.scrollTop=cinematicY;
-      document.body.scrollTop=cinematicY;
+
+      // Directly drive Safari's real scroll container. Numeric scrollTo is kept
+      // as a secondary path for desktop/Android, but no smooth behavior is active.
+      scroller.scrollTop = cinematicY;
+      window.scrollTo(0, cinematicY);
+
       programmatic=false;
 
       // Two butterflies orbit each other while generally leading the camera downward.
@@ -1875,6 +1888,8 @@
       const finished = route.length && cinematicY >= route[route.length-1].y-5;
       if(finished){
         cleanup();
+        document.documentElement.style.scrollBehavior = oldHtmlScrollBehavior;
+        document.body.style.scrollBehavior = oldBodyScrollBehavior;
         note.textContent='♡';
         note.classList.add('show');
         guide.classList.add('heart-finale');
