@@ -57,6 +57,7 @@
   /* ---------- HERO / 3D ENVELOPE ---------- */
   html.locked, html.locked body{overflow:hidden; height:100%; overscroll-behavior:none;}
   html.pre section, html.pre footer{opacity:0; visibility:hidden;}
+  html.locked .hero{touch-action:none; -webkit-user-select:none; user-select:none;}
   section, footer{transition:opacity 1.2s ease .1s;}
 
   .hero{
@@ -68,7 +69,7 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    padding:1.5rem 1.25rem 2.5rem;
+    padding:.8rem .5rem 1.4rem;
     text-align:center;
   }
 
@@ -83,27 +84,26 @@
   @keyframes drift2{to{transform:translate(-8vmax,6vmax) scale(1.1);}}
 
   .hero-stage{
-    --w:clamp(280px,84vw,400px);
-    --h:calc(var(--w) * .7);
+    --w:clamp(250px, min(94vw, 440px, calc((78vh - 70px) / 1.33)), 440px);
+    --w:clamp(250px, min(94vw, 440px, calc((78svh - 70px) / 1.33)), 440px);
+    --h:calc(var(--w) * .86);
     position:relative;
     z-index:2;
     width:100%;
-    max-width:460px;
-    height:min(560px,62vh);
-    height:min(560px,62svh);
+    height:calc(var(--h) * 1.55 + 80px);
   }
 
   .env-scene{
     position:absolute; inset:0;
-    display:grid; place-items:center;
-    perspective:1300px;
-    perspective-origin:50% 42%;
+    display:grid; justify-items:center; align-items:start;
+    perspective:1100px;
+    perspective-origin:50% 40%;
   }
 
   .env-ground{
     position:absolute;
     left:50%;
-    top:calc(50% + var(--h) / 2 + 30px);
+    top:calc(var(--h) * 1.55 + 34px);
     width:calc(var(--w) * .84);
     height:26px;
     margin-left:calc(var(--w) * -.42);
@@ -118,6 +118,7 @@
   }
 
   .env-float{
+    margin-top:calc(var(--h) * .55 + 6px);
     transform-style:preserve-3d;
     animation:envFloat 7s ease-in-out infinite;
   }
@@ -173,8 +174,8 @@
   .seal-wrap{
     position:absolute;
     left:50%; top:55%;
-    width:calc(var(--w) * .2);
-    min-width:58px;
+    width:calc(var(--w) * .34);
+    min-width:84px;
     aspect-ratio:1;
     transform:translate(-50%,-50%) translateZ(16px);
   }
@@ -219,9 +220,10 @@
   .seal-wrap.broken .seal-btn{visibility:hidden;}
   .seal-wrap.broken .seal-half{display:block;}
   .seal-wrap.broken::before{display:none;}
+  .seal-wrap.broken .seal-glow,.seal-wrap.broken .seal-sparks{display:none;}
 
   /* particles (wax crumbs, sparkles) */
-  .fx{position:absolute; left:50%; top:50%; width:0; height:0; pointer-events:none; z-index:5;}
+  .fx{position:absolute; left:50%; top:calc(var(--h) * 1.05 + 6px); width:0; height:0; pointer-events:none; z-index:5;}
   .fx i{position:absolute; left:0; top:0; display:block; border-radius:50%; will-change:transform, opacity;}
 
   /* --- invitation card: sits inside the envelope, then slides out --- */
@@ -292,14 +294,18 @@
   .tap-hint{
     position:relative;
     z-index:2;
-    margin-top:.4rem;
+    margin-top:.2rem;
+    opacity:0;
+    animation:none;
     font-family:var(--serif);
     font-style:italic;
     font-size:1.05rem;
     color:var(--ink-soft);
     transition:opacity .4s ease;
   }
-  .hero.opening .tap-hint{opacity:0;}
+  .hero.ready .tap-hint{opacity:1; animation:hintBreath 2.4s ease-in-out infinite;}
+  .hero.opening .tap-hint{opacity:0; animation:none;}
+  @keyframes hintBreath{0%,100%{opacity:.55; transform:translateY(0);} 50%{opacity:1; transform:translateY(-3px);}}
   .hero.opened .tap-hint{display:none;}
 
   .scroll-cue{
@@ -324,8 +330,65 @@
   }
   @keyframes arrowDrip{0%{transform:scaleY(0);} 55%{transform:scaleY(1);} 100%{transform:scaleY(1); opacity:0;}}
 
+  
+  /* --- extra effects --- */
+  .bokeh{position:absolute; inset:0;}
+  .bokeh b{
+    position:absolute; bottom:-30px; display:block; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,.95), rgba(246,205,120,.4) 55%, transparent 72%);
+    opacity:0; animation:bokehUp linear infinite; will-change:transform, opacity;
+  }
+  @keyframes bokehUp{
+    0%{transform:translate(0,0) scale(.6); opacity:0;}
+    12%{opacity:.85;}
+    85%{opacity:.6;}
+    100%{transform:translate(var(--dx,20px), -112vh) scale(1.1); opacity:0;}
+  }
+  .env-light{
+    background:radial-gradient(ellipse at 50% 28%, rgba(255,246,214,1), rgba(255,226,170,.75) 38%, rgba(255,210,236,0) 72%);
+    opacity:0;
+  }
+  .env-sheen{
+    background:linear-gradient(112deg, transparent 38%, rgba(255,255,255,.7) 50%, transparent 62%) 160% 0 / 260% 100% no-repeat;
+    clip-path:polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
+    animation:paperSheen 4.8s ease-in-out 1.6s infinite;
+  }
+  @keyframes paperSheen{0%{background-position:160% 0;} 55%,100%{background-position:-60% 0;}}
+  .seal-glow{
+    position:absolute; inset:-62%;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(250,205,130,.7), rgba(242,146,219,.32) 36%, rgba(191,136,216,0) 68%);
+    animation:sealGlow 2.6s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes sealGlow{0%,100%{transform:scale(.82); opacity:.55;} 50%{transform:scale(1.08); opacity:1;}}
+  .seal-shine{
+    position:absolute; inset:5%;
+    border-radius:50%;
+    overflow:hidden;
+    pointer-events:none;
+    mix-blend-mode:overlay;
+  }
+  .seal-shine::after{
+    content:""; position:absolute; inset:-60% -10%;
+    background:linear-gradient(115deg, transparent 40%, rgba(255,255,255,.95) 50%, transparent 60%);
+    animation:sealShine 3.2s ease-in-out infinite;
+  }
+  @keyframes sealShine{0%{transform:translateX(-90%);} 60%,100%{transform:translateX(90%);}}
+  .seal-sparks{position:absolute; inset:0; pointer-events:none;}
+  .seal-spark{
+    position:absolute; display:block;
+    background:radial-gradient(circle, #fffbe8 0%, #ffe6a3 45%, #f3cc4f 100%);
+    clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);
+    will-change:transform, opacity;
+  }
+  .flash{position:absolute; inset:0; z-index:6; pointer-events:none; opacity:0;
+    background:radial-gradient(circle at 50% 45%, rgba(255,250,225,.95), rgba(255,226,170,.55) 38%, rgba(255,210,240,0) 72%);}
+  .ring{position:absolute; left:0; top:0; border-radius:50%; border:2px solid rgba(243,204,79,.9); box-shadow:0 0 14px rgba(255,214,120,.8), inset 0 0 12px rgba(255,214,120,.5); pointer-events:none;}
+
   @media (prefers-reduced-motion:reduce){
-    .env-float,.env-ground,.aurora i,.seal-wrap::before{animation:none;}
+    .env-float,.env-ground,.aurora i,.seal-wrap::before,.bokeh b,.env-sheen,.seal-glow,.seal-shine::after{animation:none;}
+    .tap-hint{opacity:1 !important;}
   }
 
   /* ---------- SHARED SECTION STYLES ---------- */
@@ -705,8 +768,8 @@
       <feColorMatrix type="matrix" values="0 0 0 0 .32  0 0 0 0 .26  0 0 0 0 .2  1.3 0 0 0 -.52"/>
     </filter>
     <filter id="blurSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.1"/></filter>
-    <clipPath id="cFront"><polygon points="0,0 50,38.5 100,0 100,70 0,70"/></clipPath>
-    <clipPath id="cFlap"><polygon points="0,0 100,0 50,38.5"/></clipPath>
+    <clipPath id="cFront"><polygon points="0,0 50,47.3 100,0 100,86 0,86"/></clipPath>
+    <clipPath id="cFlap"><polygon points="0,0 100,0 50,47.3"/></clipPath>
 
     <!-- wax -->
     <radialGradient id="waxGrad" cx=".36" cy=".3" r=".85">
@@ -756,7 +819,7 @@
       <circle cx="60" cy="60" r="43.5" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1" transform="translate(.6 .9)"/>
       <!-- raised stamp -->
       <g filter="url(#waxStamp)" fill="#a477ad" stroke="none">
-        <circle cx="60" cy="60" r="38.5" fill="none" stroke="#a477ad" stroke-width="2.4"/>
+        <circle cx="60" cy="60" r="47.3" fill="none" stroke="#a477ad" stroke-width="2.4"/>
         <circle cx="60" cy="60" r="33" fill="none" stroke="#a477ad" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 4.55"/>
         <text x="39" y="73" text-anchor="middle" font-family="'Cormorant Garamond','Times New Roman',serif" font-style="italic" font-weight="500" font-size="40">L</text>
         <text x="82" y="73" text-anchor="middle" font-family="'Cormorant Garamond','Times New Roman',serif" font-style="italic" font-weight="500" font-size="40">S</text>
@@ -769,7 +832,7 @@
 </svg>
 
 <div class="hero" id="hero">
-  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i><div class="bokeh" id="bokeh"></div></div>
 
   <div class="hero-stage" id="stage">
     <div class="env-scene" id="scene">
@@ -780,12 +843,15 @@
           <div class="env" id="env">
 
             <!-- back panel: patterned liner -->
-            <svg class="env-part" data-z="0" style="--z:0px" viewBox="0 0 100 70" preserveAspectRatio="none" aria-hidden="true">
-              <rect width="100" height="70" fill="url(#gLiner)"/>
-              <rect width="100" height="70" fill="url(#pLattice)"/>
-              <rect width="100" height="70" fill="url(#gInner)"/>
-              <rect x=".2" y=".2" width="99.6" height="69.6" fill="none" stroke="rgba(47,42,53,.18)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+            <svg class="env-part" data-z="0" style="--z:0px" viewBox="0 0 100 86" preserveAspectRatio="none" aria-hidden="true">
+              <rect width="100" height="86" fill="url(#gLiner)"/>
+              <rect width="100" height="86" fill="url(#pLattice)"/>
+              <rect width="100" height="86" fill="url(#gInner)"/>
+              <rect x=".2" y=".2" width="99.6" height="85.6" fill="none" stroke="rgba(47,42,53,.18)" stroke-width="1" vector-effect="non-scaling-stroke"/>
             </svg>
+
+            <!-- warm light that spills out when the flap opens -->
+            <div class="env-part env-light" data-z="1" style="--z:1px" aria-hidden="true"></div>
 
             <!-- the invitation card, waiting inside -->
             <div class="invite-card" id="card" aria-live="polite">
@@ -797,45 +863,51 @@
             </div>
 
             <!-- front pocket: three folded panels -->
-            <svg class="env-part" data-z="4" style="--z:4px" viewBox="0 0 100 70" preserveAspectRatio="none" aria-hidden="true">
-              <polygon points="0,0 50,38.5 0,70" fill="url(#gPaperL)"/>
-              <polygon points="100,0 50,38.5 100,70" fill="url(#gPaperR)"/>
-              <path d="M-4 74 L50 38.5 L104 74" fill="none" stroke="rgba(40,22,52,.42)" stroke-width="3" filter="url(#blurSoft)" clip-path="url(#cFront)"/>
-              <polygon points="0,70 50,38.5 100,70" fill="url(#gPaperB)"/>
-              <g clip-path="url(#cFront)"><rect width="100" height="70" filter="url(#grain)" opacity=".55"/></g>
-              <path d="M0 70 L50 38.5 L100 70" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1" vector-effect="non-scaling-stroke"/>
-              <path d="M0 70 L50 38.5 L100 70" fill="none" stroke="rgba(47,42,53,.16)" stroke-width="1" vector-effect="non-scaling-stroke" transform="translate(0 .35)"/>
-              <path d="M0 0 L50 38.5 L100 0" fill="none" stroke="rgba(47,42,53,.12)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-              <rect x=".2" y=".2" width="99.6" height="69.6" fill="none" stroke="rgba(47,42,53,.18)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-              <text x="50" y="60.4" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="400" font-size="2.3" letter-spacing=".75" fill="#847c8c">LUCA &amp; SOMA</text>
-              <text x="50" y="64.3" text-anchor="middle" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="2.7" fill="#a98a52">2027 · 08 · 08</text>
+            <svg class="env-part" data-z="4" style="--z:4px" viewBox="0 0 100 86" preserveAspectRatio="none" aria-hidden="true">
+              <polygon points="0,0 50,47.3 0,86" fill="url(#gPaperL)"/>
+              <polygon points="100,0 50,47.3 100,86" fill="url(#gPaperR)"/>
+              <path d="M-4 90 L50 47.3 L104 90" fill="none" stroke="rgba(40,22,52,.42)" stroke-width="3" filter="url(#blurSoft)" clip-path="url(#cFront)"/>
+              <polygon points="0,86 50,47.3 100,86" fill="url(#gPaperB)"/>
+              <g clip-path="url(#cFront)"><rect width="100" height="86" filter="url(#grain)" opacity=".55"/></g>
+              <path d="M0 86 L50 47.3 L100 86" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              <path d="M0 86 L50 47.3 L100 86" fill="none" stroke="rgba(47,42,53,.16)" stroke-width="1" vector-effect="non-scaling-stroke" transform="translate(0 .35)"/>
+              <path d="M0 0 L50 47.3 L100 0" fill="none" stroke="rgba(47,42,53,.12)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              <rect x=".2" y=".2" width="99.6" height="85.6" fill="none" stroke="rgba(47,42,53,.18)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              <text x="50" y="76.4" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="400" font-size="2.3" letter-spacing=".75" fill="#847c8c">LUCA &amp; SOMA</text>
+              <text x="50" y="80.6" text-anchor="middle" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="2.7" fill="#a98a52">2027 · 08 · 08</text>
             </svg>
 
+            <!-- moving light sweep across the paper -->
+            <div class="env-part env-sheen" data-z="4.6" style="--z:4.6px" aria-hidden="true"></div>
+
             <!-- soft shadow the closed flap casts on the pocket -->
-            <svg class="env-part" id="flapShade" data-z="5" style="--z:5px" viewBox="0 0 100 70" preserveAspectRatio="none" aria-hidden="true">
-              <polygon points="1.5,1.2 98.5,1.2 50,41.2" fill="rgba(30,14,40,.4)" filter="url(#blurSoft)"/>
+            <svg class="env-part" id="flapShade" data-z="5" style="--z:5px" viewBox="0 0 100 86" preserveAspectRatio="none" aria-hidden="true">
+              <polygon points="1.5,1.2 98.5,1.2 50,50.3" fill="rgba(30,14,40,.4)" filter="url(#blurSoft)"/>
             </svg>
 
             <!-- flap -->
             <div class="flap" id="flap" aria-hidden="true">
-              <svg class="face out" viewBox="0 0 100 38.5" preserveAspectRatio="none">
-                <polygon points="0,0 100,0 50,38.5" fill="url(#gFlapOut)"/>
-                <g clip-path="url(#cFlap)"><rect width="100" height="38.5" filter="url(#grain)" opacity=".55"/></g>
-                <path d="M0 0 L50 38.5 L100 0" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-                <path d="M0 0 L50 38.5 L100 0" fill="none" stroke="rgba(47,42,53,.2)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round" transform="translate(0 .4)"/>
+              <svg class="face out" viewBox="0 0 100 47.3" preserveAspectRatio="none">
+                <polygon points="0,0 100,0 50,47.3" fill="url(#gFlapOut)"/>
+                <g clip-path="url(#cFlap)"><rect width="100" height="47.3" filter="url(#grain)" opacity=".55"/></g>
+                <path d="M0 0 L50 47.3 L100 0" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+                <path d="M0 0 L50 47.3 L100 0" fill="none" stroke="rgba(47,42,53,.2)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round" transform="translate(0 .4)"/>
               </svg>
-              <svg class="face in" viewBox="0 0 100 38.5" preserveAspectRatio="none">
-                <polygon points="0,0 100,0 50,38.5" fill="url(#gLiner)"/>
-                <polygon points="0,0 100,0 50,38.5" fill="url(#pLattice)"/>
-                <polygon points="0,0 100,0 50,38.5" fill="rgba(255,255,255,.12)"/>
-                <path d="M0 0 L50 38.5 L100 0" fill="none" stroke="rgba(47,42,53,.2)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+              <svg class="face in" viewBox="0 0 100 47.3" preserveAspectRatio="none">
+                <polygon points="0,0 100,0 50,47.3" fill="url(#gLiner)"/>
+                <polygon points="0,0 100,0 50,47.3" fill="url(#pLattice)"/>
+                <polygon points="0,0 100,0 50,47.3" fill="rgba(255,255,255,.12)"/>
+                <path d="M0 0 L50 47.3 L100 0" fill="none" stroke="rgba(47,42,53,.2)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
               </svg>
             </div>
 
             <!-- the wax seal, floating just above the flap tip -->
             <div class="seal-wrap" id="sealWrap">
+              <span class="seal-glow" aria-hidden="true"></span>
+              <span class="seal-sparks" id="sealSparks" aria-hidden="true"></span>
               <button class="seal-btn" id="sealBtn" type="button" aria-label="Pecsét feltörése és a boríték felbontása">
                 <svg class="seal-art" viewBox="0 0 120 120" aria-hidden="true"><use href="#sealArt" width="120" height="120"/></svg>
+                <span class="seal-shine" aria-hidden="true"></span>
               </button>
               <svg class="seal-half l" id="halfL" viewBox="0 0 120 120" aria-hidden="true"><use href="#sealArt" width="120" height="120"/></svg>
               <svg class="seal-half r" id="halfR" viewBox="0 0 120 120" aria-hidden="true"><use href="#sealArt" width="120" height="120"/></svg>
@@ -1021,27 +1093,30 @@
 </footer>
 
 <script>
-  // --- 3D envelope ---
+  // --- 3D envelope (mobile-first) ---
   const hero = document.getElementById('hero');
-  const stage = document.getElementById('stage');
+  const scene = document.getElementById('scene');
   const env = document.getElementById('env');
   const tilt = document.getElementById('tilt');
   const floater = document.getElementById('float');
   const card = document.getElementById('card');
   const flap = document.getElementById('flap');
   const flapShade = document.getElementById('flapShade');
+  const envLight = env.querySelector('.env-light');
   const sealWrap = document.getElementById('sealWrap');
   const sealBtn = document.getElementById('sealBtn');
+  const sealSparks = document.getElementById('sealSparks');
   const halfL = document.getElementById('halfL');
   const halfR = document.getElementById('halfR');
   const ground = document.getElementById('ground');
   const fx = document.getElementById('fx');
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let opened = false;
-  let tiltK = 1;
+  let opened = false, introDone = false, tiltK = 1, touching = false, sparkTimer = null;
 
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const run = (el, kf, opt) => el.animate(kf, Object.assign({fill:'forwards'}, opt)).finished;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const buzz = p => { if(navigator.vibrate){ try{ navigator.vibrate(p); }catch(_){} } };
 
   // the card is scaled down so it fits fully inside the envelope
   function fitCard(){
@@ -1054,143 +1129,254 @@
   window.addEventListener('resize', fitCard);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
 
-  // pointer parallax: the envelope turns to face the cursor
+  // floating light dots in the background
+  (function(){
+    const box = document.getElementById('bokeh');
+    for(let i = 0; i < 16; i++){
+      const b = document.createElement('b');
+      const s = 5 + Math.random() * 13;
+      b.style.cssText = 'left:' + (Math.random() * 100) + '%;width:' + s + 'px;height:' + s + 'px;--dx:' + ((Math.random() - .5) * 90) + 'px;animation-duration:' + (11 + Math.random() * 11) + 's;animation-delay:-' + (Math.random() * 20) + 's';
+      box.appendChild(b);
+    }
+  })();
+
+  // ---------- tilt: finger / mouse / gyroscope ----------
+  function setTilt(x, y){            // x,y in -0.5 .. 0.5
+    tilt.style.setProperty('--ry', (x * 26 * tiltK).toFixed(2) + 'deg');
+    tilt.style.setProperty('--rx', (-y * 20 * tiltK).toFixed(2) + 'deg');
+  }
+  window.addEventListener('pointerdown', e => { if(e.pointerType === 'touch') touching = true; }, {passive:true});
   window.addEventListener('pointermove', e => {
-    if(e.pointerType === 'touch') return;
-    const x = e.clientX / window.innerWidth - .5;
-    const y = e.clientY / window.innerHeight - .5;
-    tilt.style.setProperty('--ry', (x * 18 * tiltK).toFixed(2) + 'deg');
-    tilt.style.setProperty('--rx', (-y * 14 * tiltK).toFixed(2) + 'deg');
+    if(e.pointerType === 'touch' && !touching) return;
+    setTilt(e.clientX / window.innerWidth - .5, e.clientY / window.innerHeight - .5);
+  }, {passive:true});
+  const release = e => { if(e.pointerType === 'touch'){ touching = false; setTilt(0, 0); } };
+  window.addEventListener('pointerup', release, {passive:true});
+  window.addEventListener('pointercancel', release, {passive:true});
+
+  let baseBeta = null;
+  window.addEventListener('deviceorientation', e => {
+    if(touching || opened || e.gamma == null || e.beta == null) return;
+    if(baseBeta === null) baseBeta = e.beta;
+    baseBeta += (e.beta - baseBeta) * .02;                // slowly re-centres
+    setTilt(clamp(e.gamma, -30, 30) / 60, clamp(e.beta - baseBeta, -30, 30) / 60);
   }, {passive:true});
 
-  // little particles: wax crumbs / sparkles
-  function burst(x, y, n, opts){
+  // ---------- particles ----------
+  function burst(x, y, n, o){
     for(let i = 0; i < n; i++){
       const p = document.createElement('i');
-      const size = opts.min + Math.random() * (opts.max - opts.min);
-      const col = opts.colors[(Math.random() * opts.colors.length) | 0];
-      p.style.width = p.style.height = size + 'px';
+      const size = o.min + Math.random() * (o.max - o.min);
+      const col = o.colors[(Math.random() * o.colors.length) | 0];
+      p.style.width = size + 'px';
+      p.style.height = (o.rect ? size * .5 : size) + 'px';
       p.style.margin = (-size / 2) + 'px 0 0 ' + (-size / 2) + 'px';
-      p.style.background = opts.glow
+      if(o.rect){ p.style.borderRadius = '2px'; p.style.background = col; }
+      else p.style.background = o.glow
         ? 'radial-gradient(circle, ' + col + ', transparent 70%)'
         : 'radial-gradient(circle at 35% 30%, ' + col + ', #5a3768)';
       fx.appendChild(p);
       const a = Math.random() * Math.PI * 2;
-      const d = opts.dist * (.45 + Math.random() * .75);
-      const dx = Math.cos(a) * d, dy = Math.sin(a) * d * (opts.flat || 1);
-      const g = opts.gravity || 0;
-      const dur = opts.dur * (.75 + Math.random() * .5);
+      const d = o.dist * (.4 + Math.random() * .8);
+      const dx = Math.cos(a) * d, dy = Math.sin(a) * d * (o.flat || 1) + (o.lift || 0);
+      const g = o.gravity || 0, spin = (Math.random() - .5) * 720;
       p.animate([
-        {transform:`translate(${x}px,${y}px) scale(.4)`, opacity:1},
-        {transform:`translate(${x + dx * .7}px,${y + dy * .7}px) scale(1)`, opacity:1, offset:.45},
-        {transform:`translate(${x + dx}px,${y + dy + g}px) scale(.2)`, opacity:0}
-      ], {duration:dur, easing:'cubic-bezier(.2,.7,.4,1)', fill:'forwards'}).finished.then(() => p.remove());
+        {transform:`translate(${x}px,${y}px) scale(.4) rotate(0deg)`, opacity:1},
+        {transform:`translate(${x + dx * .7}px,${y + dy * .7}px) scale(1) rotate(${spin * .6}deg)`, opacity:1, offset:.4},
+        {transform:`translate(${x + dx}px,${y + dy + g}px) scale(.3) rotate(${spin}deg)`, opacity:0}
+      ], {duration:o.dur * (.75 + Math.random() * .5), easing:'cubic-bezier(.15,.7,.4,1)', fill:'forwards'}).finished.then(() => p.remove());
     }
+  }
+  function ring(x, y, size, to, dur){
+    const r = document.createElement('i');
+    r.className = 'ring';
+    r.style.width = r.style.height = size + 'px';
+    r.style.margin = (-size / 2) + 'px 0 0 ' + (-size / 2) + 'px';
+    fx.appendChild(r);
+    r.animate([
+      {transform:`translate(${x}px,${y}px) scale(.3)`, opacity:1},
+      {transform:`translate(${x}px,${y}px) scale(${to})`, opacity:0}
+    ], {duration:dur, easing:'cubic-bezier(.1,.7,.3,1)', fill:'forwards'}).finished.then(() => r.remove());
+  }
+  function flash(peak, dur){
+    const f = document.createElement('div');
+    f.className = 'flash';
+    hero.appendChild(f);
+    f.animate([{opacity:0},{opacity:peak, offset:.2},{opacity:0}], {duration:dur, easing:'ease-out'}).finished.then(() => f.remove());
+  }
+  // twinkling stars around the seal while it waits
+  function twinkle(){
+    if(opened || document.hidden) return;
+    const s = document.createElement('span');
+    s.className = 'seal-spark';
+    const size = 7 + Math.random() * 14;
+    const a = Math.random() * Math.PI * 2, r = 46 + Math.random() * 40;       // % of seal size
+    s.style.width = s.style.height = size + 'px';
+    s.style.left = (50 + Math.cos(a) * r) + '%';
+    s.style.top = (50 + Math.sin(a) * r) + '%';
+    s.style.marginLeft = s.style.marginTop = (-size / 2) + 'px';
+    sealSparks.appendChild(s);
+    s.animate([
+      {transform:'scale(0) rotate(0deg)', opacity:0},
+      {transform:'scale(1) rotate(90deg)', opacity:1, offset:.45},
+      {transform:'scale(0) rotate(180deg)', opacity:0}
+    ], {duration:900 + Math.random() * 600, easing:'ease-in-out'}).finished.then(() => s.remove());
+  }
+
+  // ---------- entrance ----------
+  async function intro(){
+    const H = env.offsetHeight;
+    env.animate([
+      {transform:'translateY(180px) translateZ(-1300px) rotateX(64deg) rotateZ(-30deg)', opacity:0},
+      {opacity:1, offset:.3},
+      {transform:'translateY(-18px) translateZ(80px) rotateX(-7deg) rotateZ(4deg)', opacity:1, offset:.74},
+      {transform:'translateY(0) translateZ(0) rotateX(0deg) rotateZ(0deg)', opacity:1}
+    ], {duration:1500, easing:'cubic-bezier(.2,.8,.25,1)', fill:'backwards'});
+    ground.animate([{opacity:0},{opacity:0, offset:.5},{opacity:1}], {duration:1500, fill:'backwards'});
+
+    // the wax seal is stamped onto the flap
+    const base = 'translate(-50%,-50%)';
+    sealWrap.animate([
+      {transform:`${base} translateZ(520px) scale(3) rotate(-50deg)`, opacity:0},
+      {opacity:1, offset:.35},
+      {transform:`${base} translateZ(16px) scale(.9) rotate(0deg)`, opacity:1, offset:.86},
+      {transform:`${base} translateZ(16px) scale(1) rotate(0deg)`, opacity:1}
+    ], {duration:620, delay:1180, easing:'cubic-bezier(.55,0,.9,.55)', fill:'backwards'});
+
+    await wait(1180 + 520);
+    // impact
+    buzz([22, 40, 30]);
+    flash(.9, 700);
+    ring(0, H * .05, H * .22, 7, 900);
+    ring(0, H * .05, H * .22, 11, 1300);
+    burst(0, H * .05, 34, {colors:['#fff6d6','#ffe08a','#f3cc4f','#f6c0ec','#c9a25a'], min:5, max:13, dist:H * .85, flat:.75, glow:true, dur:1500});
+    env.animate([
+      {transform:'translateY(0) rotateX(0deg)'},
+      {transform:'translateY(9px) rotateX(3deg)', offset:.3},
+      {transform:'translateY(-3px) rotateX(-1deg)', offset:.65},
+      {transform:'translateY(0) rotateX(0deg)'}
+    ], {duration:520, easing:'ease-out'});
+    await wait(500);
+    hero.classList.add('ready');
+    introDone = true;
+    sparkTimer = setInterval(twinkle, 170);
   }
 
   function showFinal(){
     hero.classList.add('opened');
     document.documentElement.classList.remove('locked', 'pre');
+    clearInterval(sparkTimer);
   }
 
+  // ---------- opening ----------
   async function openEnvelope(){
-    if(opened) return;
+    if(opened || !introDone) return;
     opened = true;
-
-    if(reduced){
-      fitCard();
-      showFinal();
-      return;
-    }
-
     fitCard();
+    if(reduced){ showFinal(); return; }
     const H = env.offsetHeight;
     const cs = parseFloat(card.style.getPropertyValue('--cs')) || .7;
-    const rise = H * .62;
-    if(navigator.vibrate) try{ navigator.vibrate(14); }catch(_){}
+    const rise = H * .6;
+    buzz([18, 30, 18]);
     hero.classList.add('opening');
 
-    // calm the idle motion down to a neutral pose
+    // settle the idle motion into a neutral pose
     const startPose = getComputedStyle(floater).transform;
     floater.style.animation = 'none';
     if(startPose && startPose !== 'none'){
       floater.animate([{transform:startPose},{transform:'none'}], {duration:900, easing:'cubic-bezier(.2,.7,.3,1)', fill:'forwards'});
     }
-    tiltK = 0;
-    tilt.style.setProperty('--rx', '0deg');
-    tilt.style.setProperty('--ry', '0deg');
+    tiltK = 0; setTilt(0, 0);
 
-    // 1) the seal is pressed...
+    // 1) press the seal...
     await run(sealBtn, [
       {transform:'scale(1) rotate(0deg)'},
-      {transform:'scale(.84) rotate(-4deg)'}
-    ], {duration:170, easing:'ease-in'});
+      {transform:'scale(.82) rotate(-5deg)'}
+    ], {duration:190, easing:'ease-in'});
 
-    // 2) ...and cracks in two
+    // 2) ...it cracks, light and gold dust burst out
     sealWrap.classList.add('broken');
-    const sealY = H * .05;
-    burst(0, sealY, 11, {colors:['#b58cbd','#8a5f92','#6e4679'], min:3, max:7, dist:H * .34, flat:.8, gravity:H * .28, dur:950});
+    buzz(40);
+    flash(.75, 800);
+    ring(0, H * .05, H * .2, 6, 800);
+    burst(0, H * .05, 14, {colors:['#b58cbd','#8a5f92','#6e4679'], min:4, max:9, dist:H * .5, flat:.8, gravity:H * .35, dur:1000});
+    burst(0, H * .05, 30, {colors:['#fff6d6','#ffe08a','#f3cc4f','#f292db','#74d2c1'], min:5, max:12, dist:H * .8, flat:.8, glow:true, dur:1400});
+    hero.animate([{transform:'translate(0,0)'},{transform:'translate(-4px,2px)'},{transform:'translate(3px,-2px)'},{transform:'translate(0,0)'}], {duration:240});
+    scene.animate([{transform:'scale(1)'},{transform:'scale(1.05)'}], {duration:1500, easing:'cubic-bezier(.3,.7,.3,1)', fill:'forwards'});
     const fall = (el, dx, dy, rot) => run(el, [
       {transform:'translate(0,0) rotate(0deg)', opacity:1},
-      {transform:`translate(${dx * .35}px, ${-H * .05}px) rotate(${rot * .3}deg)`, opacity:1, offset:.22},
+      {transform:`translate(${dx * .35}px, ${-H * .06}px) rotate(${rot * .3}deg)`, opacity:1, offset:.22},
       {transform:`translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity:0}
-    ], {duration:1100, easing:'cubic-bezier(.4,0,.9,.6)'});
-    fall(halfL, -H * .16, H * .75, -48);
-    fall(halfR, H * .15, H * .9, 38);
+    ], {duration:1150, easing:'cubic-bezier(.4,0,.9,.6)'});
+    fall(halfL, -H * .2, H * .8, -55);
+    fall(halfR, H * .18, H * .95, 42);
 
-    // 3) the flap swings open on its hinge
+    // 3) the flap swings open on its hinge, warm light spills out
     flapShade.animate([{opacity:1},{opacity:0}], {duration:420, delay:80, fill:'forwards'});
-    const flapDone = run(flap, [
+    envLight.animate([{opacity:0},{opacity:1}], {duration:900, delay:300, fill:'forwards'});
+    run(flap, [
       {transform:'translateZ(6px) rotateX(0deg)'},
       {transform:'translateZ(6px) rotateX(-90deg)', offset:.46},
       {transform:'translateZ(.5px) rotateX(-186deg)', offset:.88},
       {transform:'translateZ(.5px) rotateX(-180deg)'}
     ], {duration:1100, delay:90, easing:'cubic-bezier(.45,.05,.3,1)'});
 
-    await wait(860);
+    await wait(850);
 
     // 4) the card slides up out of the pocket
     hero.classList.add('lifted');
     const base = 'translate(-50%,-50%)';
     await run(card, [
       {transform:`${base} translateZ(2px) scale(${cs})`},
-      {transform:`${base} translateY(${-rise}px) translateZ(2px) rotateZ(-2.2deg) scale(${cs})`}
-    ], {duration:820, easing:'cubic-bezier(.3,.75,.25,1)'});
+      {transform:`${base} translateY(${-rise}px) translateZ(2px) rotateZ(-2.4deg) scale(${cs})`}
+    ], {duration:850, easing:'cubic-bezier(.3,.75,.25,1)'});
 
     // 5) it lifts toward the viewer...
     await run(card, [
-      {transform:`${base} translateY(${-rise}px) translateZ(2px) rotateZ(-2.2deg) scale(${cs})`},
-      {transform:`${base} translateY(${-rise * 1.04}px) translateZ(90px) rotateZ(0deg) scale(${cs * 1.1})`}
-    ], {duration:420, easing:'cubic-bezier(.3,.6,.3,1)'});
+      {transform:`${base} translateY(${-rise}px) translateZ(2px) rotateZ(-2.4deg) scale(${cs})`},
+      {transform:`${base} translateY(${-rise * 1.03}px) translateZ(110px) rotateZ(0deg) scale(${cs * 1.08})`}
+    ], {duration:430, easing:'cubic-bezier(.3,.6,.3,1)'});
 
-    // 6) ...while the envelope falls away and the card settles in the middle
-    const sink = H * .55;
+    // 6) ...the envelope drops away, the card glides into the middle
+    const sink = H * .6;
     const parts = [
-      {el:flap, t:'translateY(' + sink + 'px) translateZ(-79.5px) rotateX(-180deg)', fade:flap.querySelectorAll('.face')},
-      ...[...env.querySelectorAll('.env-part')].filter(el => el !== flapShade).map(el => ({
-        el, t:'translateY(' + sink + 'px) translateZ(' + (parseFloat(el.dataset.z || 0) - 80) + 'px)', fade:[el]
-      }))
+      {el:flap, t:'translateY(' + sink + 'px) translateZ(-79.5px) rotateX(-180deg)', from:'translateZ(.5px) rotateX(-180deg)', fade:[...flap.querySelectorAll('.face')]},
+      ...[...env.querySelectorAll('.env-part')].filter(el => el !== flapShade).map(el => {
+        const z = parseFloat(el.dataset.z || 0);
+        return {el, t:'translateY(' + sink + 'px) translateZ(' + (z - 80) + 'px)', from:'translateZ(' + z + 'px)', fade:[el]};
+      })
     ];
     parts.forEach(p => {
-      const from = p.el === flap ? 'translateZ(.5px) rotateX(-180deg)' : 'translateZ(' + (p.el.dataset.z || 0) + 'px)';
-      p.el.animate([{transform:from},{transform:p.t}], {duration:800, easing:'cubic-bezier(.55,0,.8,.5)', fill:'forwards'});
-      p.fade.forEach(f => f.animate([{opacity:1},{opacity:0}], {duration:700, easing:'ease-in', fill:'forwards'}));
+      p.el.animate([{transform:p.from},{transform:p.t}], {duration:850, easing:'cubic-bezier(.55,0,.8,.5)', fill:'forwards'});
+      p.fade.forEach(f => f.animate([{opacity:1},{opacity:0}], {duration:750, easing:'ease-in', fill:'forwards'}));
     });
     ground.animate([{opacity:1},{opacity:0}], {duration:600, fill:'forwards'});
+    scene.animate([{transform:'scale(1.05)'},{transform:'scale(1)'}], {duration:900, easing:'ease-in-out', fill:'forwards'});
 
     await run(card, [
-      {transform:`${base} translateY(${-rise * 1.04}px) translateZ(90px) scale(${cs * 1.1})`},
+      {transform:`${base} translateY(${-rise * 1.03}px) translateZ(110px) scale(${cs * 1.08})`},
       {transform:`${base} translateY(0px) translateZ(0px) scale(1)`}
-    ], {duration:900, easing:'cubic-bezier(.25,.8,.25,1)'});
+    ], {duration:950, easing:'cubic-bezier(.25,.8,.25,1)'});
 
-    // 7) done: sparkle, give the page back
-    burst(0, 0, 22, {colors:['#74d2c1','#f292db','#f6ee79','#a1b3ed','#bf88d8'], min:10, max:22, dist:Math.min(190, window.innerWidth * .46), flat:.9, glow:true, dur:1500});
+    // 7) finale: confetti and sparkles, hand the page back
+    buzz([12, 30, 12]);
+    const cols = ['#74d2c1','#f292db','#f6ee79','#a1b3ed','#bf88d8','#f3cc4f'];
+    ring(0, 0, H * .3, 8, 1100);
+    burst(0, 0, 26, {colors:cols, min:8, max:20, dist:Math.min(210, window.innerWidth * .52), flat:.9, glow:true, dur:1500});
+    burst(0, -H * .3, 46, {colors:cols, min:7, max:13, rect:true, dist:Math.min(230, window.innerWidth * .6), flat:.9, lift:-H * .1, gravity:H * 1.2, dur:2300});
     tiltK = .35;
     showFinal();
   }
 
   env.addEventListener('click', openEnvelope);
   window.scrollTo(0, 0);
+
+  if(reduced){
+    hero.classList.add('ready');
+    introDone = true;
+  } else {
+    intro();
+  }
 
 
   // --- timeline data ---
