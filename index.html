@@ -807,6 +807,75 @@
   @keyframes pageDust{from{transform:translate3d(0,12px,0) scale(.7);opacity:.15}to{transform:translate3d(var(--dx,20px),-24px,0) scale(1.35);opacity:.55}}
   section,footer{z-index:1;}
 
+
+  /* ---------- V5 CINEMATIC CONFETTI TOUR ---------- */
+  .cinematic-guide{
+    position:fixed; left:50%; top:20svh; z-index:10020;
+    width:44px; height:72px; pointer-events:none;
+    opacity:0; transform:translate(-50%,-30px) scale(.35) rotate(-18deg);
+    filter:drop-shadow(0 10px 12px rgba(47,42,53,.22));
+    will-change:transform,opacity,left,top;
+  }
+  .cinematic-guide.show{animation:guideEnter .85s cubic-bezier(.2,.85,.25,1) forwards;}
+  .cinematic-guide.leave{animation:guideLeave 1.1s ease-in forwards;}
+  .cinematic-guide{width:110px;height:70px;}
+  .cinematic-guide .piece{
+    position:absolute; width:28px; height:22px;
+    left:38px; top:18px;
+    filter:drop-shadow(0 5px 5px rgba(47,42,53,.18)) drop-shadow(0 0 7px rgba(243,204,79,.28));
+    animation:butterflyBody 2.4s ease-in-out infinite alternate;
+  }
+  .cinematic-guide .piece::before,
+  .cinematic-guide .piece::after{
+    content:""; position:absolute; top:2px; width:16px; height:19px;
+    background:linear-gradient(145deg,#fff5ba 0%,#f292db 48%,#bf88d8 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.32);
+  }
+  .cinematic-guide .piece::before{
+    right:50%; transform-origin:right center;
+    border-radius:85% 18% 75% 28%;
+    animation:wingLeft .34s ease-in-out infinite alternate;
+  }
+  .cinematic-guide .piece::after{
+    left:50%; transform-origin:left center;
+    border-radius:18% 85% 28% 75%;
+    animation:wingRight .34s ease-in-out infinite alternate;
+  }
+  .cinematic-guide .butterfly-two{
+    position:absolute; width:21px; height:17px;
+    left:69px; top:37px;
+    filter:drop-shadow(0 4px 4px rgba(47,42,53,.16));
+    animation:butterflyTwo 2.9s ease-in-out infinite alternate;
+  }
+  .cinematic-guide .butterfly-two::before,
+  .cinematic-guide .butterfly-two::after{
+    content:""; position:absolute; top:1px; width:12px; height:15px;
+    background:linear-gradient(145deg,#dff9f1 0%,#74d2c1 48%,#a1b3ed 100%);
+  }
+  .cinematic-guide .butterfly-two::before{
+    right:50%; transform-origin:right center;
+    border-radius:85% 18% 75% 28%;
+    animation:wingLeft .29s ease-in-out infinite alternate;
+  }
+  .cinematic-guide .butterfly-two::after{
+    left:50%; transform-origin:left center;
+    border-radius:18% 85% 28% 75%;
+    animation:wingRight .29s ease-in-out infinite alternate;
+  }
+  @keyframes wingLeft{from{transform:rotateY(12deg) rotate(-9deg)}to{transform:rotateY(68deg) rotate(-2deg)}}
+  @keyframes wingRight{from{transform:rotateY(-12deg) rotate(9deg)}to{transform:rotateY(-68deg) rotate(2deg)}}
+  @keyframes butterflyBody{from{transform:translate(-5px,4px) rotate(-8deg)}to{transform:translate(7px,-6px) rotate(8deg)}}
+  @keyframes butterflyTwo{from{transform:translate(7px,-7px) rotate(10deg)}to{transform:translate(-8px,7px) rotate(-11deg)}}
+  .cinematic-guide .trail{position:absolute;left:50%;top:-18px;width:5px;height:5px;border-radius:50%;background:#fff6d6;box-shadow:0 -16px 0 -1px rgba(243,204,79,.7),13px -7px 0 -1px rgba(242,146,219,.65),-12px -3px 0 -1px rgba(116,210,193,.65);animation:trailTwinkle 1.2s ease-in-out infinite alternate;}
+  @keyframes guideEnter{to{opacity:1;transform:translate(-50%,0) scale(1) rotate(8deg)}}
+  @keyframes guideLeave{to{opacity:0;transform:translate(-50%,55vh) scale(.65) rotate(190deg)}}
+  @keyframes guideFlutter{0%{transform:perspective(180px) rotateY(-34deg) rotateZ(-12deg) translateX(-8px)}100%{transform:perspective(180px) rotateY(38deg) rotateZ(16deg) translateX(8px)}}
+  @keyframes guideGlint{0%,35%{transform:translateX(-85%);opacity:0}55%{opacity:1}80%,100%{transform:translateX(85%);opacity:0}}
+  @keyframes trailTwinkle{from{opacity:.35;transform:scale(.7)}to{opacity:1;transform:scale(1.25)}}
+  .cinematic-note{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));z-index:10019;transform:translateX(-50%) translateY(12px);padding:.55rem .85rem;border-radius:999px;background:rgba(250,246,238,.78);backdrop-filter:blur(10px);border:1px solid rgba(201,162,90,.25);font:italic .78rem var(--serif);color:var(--ink-soft);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .7s ease,transform .7s ease;box-shadow:0 10px 28px rgba(47,42,53,.08)}
+  .cinematic-note.show{opacity:.9;transform:translateX(-50%) translateY(0)}
+  .cinematic-note.hide{opacity:0;transform:translateX(-50%) translateY(10px)}
+
 </style>
 </head>
 <body>
@@ -1397,6 +1466,8 @@
     burst(0, -H * .3, 46, {colors:cols, min:7, max:13, rect:true, dist:Math.min(230, window.innerWidth * .6), flat:.9, lift:-H * .1, gravity:H * 1.2, dur:2300});
     tiltK = .35;
     showFinal();
+    // Let the finale breathe, then the large confetti takes over as the visual guide.
+    setTimeout(startCinematicTour, 1350);
   }
 
   env.addEventListener('click', openEnvelope);
@@ -1590,6 +1661,151 @@
     setTimeout(()=>{ btn.textContent = 'Szöveg másolása'; }, 2000);
   });
 
+
+
+  // ===== V7 CONTINUOUS BUTTERFLY CINEMATIC TOUR =====
+  let cinematicTourStarted = false;
+  function startCinematicTour(){
+    if(cinematicTourStarted || reduced) return;
+    cinematicTourStarted = true;
+
+    const guide=document.createElement('div');
+    guide.className='cinematic-guide';
+    guide.setAttribute('aria-hidden','true');
+    guide.innerHTML='<span class="trail"></span><span class="piece"></span><span class="butterfly-two"></span>';
+    document.body.appendChild(guide);
+
+    const note=document.createElement('div');
+    note.className='cinematic-note';
+    note.textContent='Kövess minket… ✦';
+    document.body.appendChild(note);
+
+    let cancelled=false, raf=0, programmatic=false;
+    const opts={passive:true};
+
+    // The opening immediately becomes a guided animation.
+    // Takeover is intentionally delayed briefly so the guest notices the cinematic movement first.
+    let takeoverEnabled=false;
+    setTimeout(()=>{takeoverEnabled=true},2400);
+
+    const cancel=()=>{
+      if(programmatic || cancelled || !takeoverEnabled) return;
+      cancelled=true;
+      cancelAnimationFrame(raf);
+      guide.classList.remove('show'); guide.classList.add('leave');
+      note.classList.add('hide');
+      cleanup();
+      setTimeout(()=>{guide.remove();note.remove();},1000);
+    };
+    const onKey=e=>{
+      if(['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' ','Escape'].includes(e.key)) cancel();
+    };
+    function cleanup(){
+      ['wheel','touchstart','pointerdown'].forEach(ev=>window.removeEventListener(ev,cancel,opts));
+      window.removeEventListener('keydown',onKey);
+    }
+    ['wheel','touchstart','pointerdown'].forEach(ev=>window.addEventListener(ev,cancel,opts));
+    window.addEventListener('keydown',onKey);
+
+    const maxScroll=()=>Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+    const clamp=v=>Math.max(0,Math.min(maxScroll(),v));
+    const yOf=(el,f=.18)=>{
+      if(!el) return null;
+      return clamp(window.scrollY+el.getBoundingClientRect().top-window.innerHeight*f);
+    };
+
+    // Route points only change speed; they never pause the scroll.
+    const points=[];
+    const add=(el,f,speed,label)=>{
+      const y=yOf(el,f);
+      if(y!==null) points.push({y,speed,label});
+    };
+
+    add(document.querySelector('.countdown-section'),.18,135,'Már nincs is olyan messze… ✦');
+
+    add(document.querySelector('.gallery-section'),.13,115,'Néhány közös pillanat… ♡');
+    [...document.querySelectorAll('.gallery figure')].forEach(fig=>
+      add(fig,.23,82,'Néhány közös pillanat… ♡')
+    );
+
+    const venuePhoto=document.getElementById('venuePhoto')||document.querySelector('.venue-photo');
+    add(venuePhoto,.11,82,'Itt ünneplünk majd… ✦');
+    add(document.querySelector('.venue-card'),.33,68,'Gálffy Birtok · Bogád');
+    add(document.querySelector('.parking-note'),.47,78,'Gálffy Birtok · Bogád');
+
+    add(document.querySelector('.timeline-section'),.12,72,'Így telik majd a napunk…');
+    [...document.querySelectorAll('#timeline li')].forEach(li=>
+      add(li,.47,58,'Így telik majd a napunk…')
+    );
+
+    add(document.querySelector('.dress-section'),.14,62,'Ezekben a színekben álmodtuk meg… ✦');
+    add(document.querySelector('.rsvp-section'),.10,68,'Várjuk a válaszotokat ♡');
+    add(document.getElementById('rsvpForm'),.16,52,'Várjuk a válaszotokat ♡');
+
+    points.sort((a,b)=>a.y-b.y);
+    // Remove duplicate/near-identical positions.
+    const route=[];
+    for(const p of points){
+      if(!route.length || p.y-route[route.length-1].y>35) route.push(p);
+      else route[route.length-1]=p;
+    }
+
+    guide.classList.add('show');
+    note.classList.add('show');
+
+    let currentIndex=0;
+    let last=performance.now();
+    let currentSpeed=150;
+    let lastLabel='';
+
+    const frame=now=>{
+      if(cancelled) return;
+      const dt=Math.min(.05,(now-last)/1000);
+      last=now;
+      const y=window.scrollY;
+
+      while(currentIndex<route.length-1 && y>=route[currentIndex].y-12) currentIndex++;
+      const target=route[Math.min(currentIndex,route.length-1)];
+
+      if(target){
+        // Smoothly blend speed instead of visibly changing gears.
+        currentSpeed += (target.speed-currentSpeed)*Math.min(1,dt*1.7);
+        if(target.label && target.label!==lastLabel){
+          lastLabel=target.label;
+          note.classList.remove('show');
+          setTimeout(()=>{
+            if(cancelled)return;
+            note.textContent=target.label;
+            note.classList.add('show');
+          },180);
+        }
+      }
+
+      // Start moving at once. No sleep/pause anywhere in the cinematic route.
+      programmatic=true;
+      window.scrollTo(0,clamp(y+currentSpeed*dt));
+      programmatic=false;
+
+      // Two butterflies orbit each other while generally leading the camera downward.
+      const t=now/1000;
+      guide.style.left=(50 + Math.sin(t*1.55)*10 + Math.sin(t*.61)*4)+'%';
+      guide.style.top=(20 + Math.sin(t*1.17)*3.2)+'svh';
+      guide.style.transform='translate(-50%,-50%) rotate('+(Math.sin(t*.9)*5)+'deg)';
+
+      const finished = route.length && window.scrollY >= route[route.length-1].y-5;
+      if(finished){
+        cleanup();
+        note.classList.add('hide');
+        guide.classList.remove('show'); guide.classList.add('leave');
+        setTimeout(()=>{guide.remove();note.remove();},1050);
+        return;
+      }
+      raf=requestAnimationFrame(frame);
+    };
+
+    // Begin essentially immediately after the event is fired.
+    raf=requestAnimationFrame(frame);
+  }
 
   // ===== V4 PREMIUM MOBILE MOTION =====
   (function premiumMotion(){
